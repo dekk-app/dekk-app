@@ -1,0 +1,104 @@
+{
+  "name": "dekk",
+  "version": "0.0.0",
+  "description": "A presentation tool for amazing people",
+  "homepage": "https://dekk.app",
+  "bugs": {
+    "url": "https://github.com/dekk-app/dekk-app/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekk-app/dekk-app.git"
+  },
+  "license": "MIT",
+  "author": "Gregor Adams <greg@pixelass.com> (https://pixelass.com)",
+  "files": [
+    "./build/**/*",
+    "./dist/**/*",
+    "./node_modules/**/*",
+    "*.js"
+  ],
+  "scripts": {
+    "compile": "electron-webpack",
+    "dev": "electron-webpack dev",
+    "dist": "yarn compile && electron-builder",
+    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
+  },
+  "dependencies": {
+    "@types/color": "^3.0.0",
+    "@types/draft-js": "^0.10.35",
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
+    "@types/react-hot-loader": "^4.1.0",
+    "@types/react-redux": "^7.1.2",
+    "@types/react-select": "^3.0.4",
+    "@types/sanitize-html": "^1.20.1",
+    "@types/styled-components": "^4.1.18",
+    "@types/uuid": "^3.4.5",
+    "color": "^3.1.2",
+    "draft-js": "^0.11.0",
+    "draft-js-export-html": "^1.4.1",
+    "electron-context-menu": "^0.15.0",
+    "electron-editor-context-menu": "^1.1.1",
+    "electron-store": "^4.0.0",
+    "electron-util": "^0.12.1",
+    "immutability-helper": "^3.0.1",
+    "immutable": "^4.0.0-rc.12",
+    "react": "^16.9.0",
+    "react-contenteditable": "^3.3.2",
+    "react-dom": "^16.9.0",
+    "react-hot-loader": "^4.12.12",
+    "react-redux": "^7.1.1",
+    "react-rnd": "^10.0.0",
+    "react-select": "^3.0.4",
+    "react-sortable-pane": "^1.1.0",
+    "redux": "^4.0.4",
+    "sanitize-html": "^1.20.1",
+    "source-map-support": "^0.5.13",
+    "styled-components": "^4.3.2",
+    "tslib": "^1.10.0",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
+    "@hot-loader/react-dom": "^16.9.0",
+    "@ngineer/config-typescript": "^1.1.0",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-styled-components": "^1.10.6",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
+    "electron": "^6.0.7",
+    "electron-builder": "^21.2.0",
+    "electron-webpack": "^2.7.4",
+    "electron-webpack-ts": "^3.2.0",
+    "npm-check-updates": "^3.1.21",
+    "prettier": "^1.18.2",
+    "typescript": "^3.6.2",
+    "webpack": "^4.39.3"
+  },
+  "build": {
+    "appId": "com.dekk.app",
+    "productName": "Dekk",
+    "copyright": "Copyright © 2019 Gregor Adams",
+    "mac": {
+      "category": "your.app.category.type"
+    },
+    "directories": {
+      "buildResources": "build"
+    }
+  },
+  "electronWebpack": {
+    "renderer": {
+      "webpackConfig": "webpack.renderer.additions.js"
+    },
+    "whiteListedModules": [
+      "react-redux",
+      "redux"
+    ]
+  }
+}
