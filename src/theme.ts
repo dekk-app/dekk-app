@@ -327,9 +327,9 @@ const theme = {
 			borderColor2: Color(palette.black).alpha(0.1).string(),
 		},
 		input: {
-			color: palette.black,
-			background1: palette.white,
-			background2: palette.grey[700],
+			color: palette.white,
+			background1: palette.grey[700],
+			background2: palette.grey[600],
 			backgroundActive: palette.indigo.a700,
 			borderColor1: Color(palette.white).alpha(0.1).string(),
 			borderColor2: Color(palette.black).alpha(0.1).string(),

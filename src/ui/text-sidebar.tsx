@@ -18,6 +18,7 @@ import {
 	setBorder as setSlotBorder,
 	setShadow as setSlotShadow,
 	setType as setSlotType,
+	setOpacity as setSlotOpacity,
 	setProps as setSlotProps,
 	setVerticalAlignment as setSlotAlignment
 } from "../store/slots";
@@ -43,16 +44,8 @@ import {Dropdown} from "./dropdown";
 import {OutsideClick} from "./outside-click";
 import {Tabs} from "./tabs";
 import {ColorPicker} from "./color-picker";
-import {Grid, Separator, Box, StyledSidebarSubtitle, Flexbox, Flex} from "./layout";
-import {
-	Input,
-	StyledGroupedInput,
-	StyledInputLabel,
-	StyledInputWrapper,
-	Range,
-	StyledNumberInput,
-	StyledRangeLabel, NumberRange
-} from "./text-input";
+import {Grid, Separator, Box, StyledSidebarSubtitle} from "./layout";
+import {NumberRange, StyledNumberInput} from "./text-input";
 import {Select} from "./select";
 
 const paragraphStyles = [
@@ -120,54 +113,48 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 							<Separator />
 							<Box>
 								<StyledSidebarSubtitle>Border</StyledSidebarSubtitle>
-								<ColorPicker
-									value={(currentSlot as Dekk.SlotModel).format.border.color}
-									onChange={colorValue =>
-										currentSlot &&
-										props.setSlotBorder(currentSlot.uuid, {
-											color: colorValue
-										})
-									}
-								/>
-								<StyledGroupedInput>
-									<StyledInputWrapper>
-										<Input
-											type="number"
-											value={(currentSlot as Dekk.SlotModel).format.border.width.toString()}
-											onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-												const {value} = e.target;
-												if (currentSlot) {
-													props.setSlotBorder(currentSlot.uuid, {
-														width: parseInt(value, 10)
-													});
-												}
-											}}
-										/>
-										<StyledInputLabel>width</StyledInputLabel>
-									</StyledInputWrapper>
-									<StyledInputWrapper>
-										<Select
-											value={
-												(currentSlot as Dekk.SlotModel).format.border.style
+								<Grid>
+									<Select
+										value={(currentSlot as Dekk.SlotModel).format.border.style}
+										onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+											const {value} = e.target;
+											if (currentSlot) {
+												props.setSlotBorder(currentSlot.uuid, {
+													style: value as Dekk.BorderStyle
+												});
 											}
-											onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-												const {value} = e.target;
-												if (currentSlot) {
-													props.setSlotBorder(currentSlot.uuid, {
-														style: value as Dekk.BorderStyle
-													});
-												}
-											}}
-											options={[
-												{label: "none", value: "none"},
-												{label: "dotted", value: "dotted"},
-												{label: "dashed", value: "dashed"},
-												{label: "solid", value: "solid"}
-											]}
-										/>
-										<StyledInputLabel>style</StyledInputLabel>
-									</StyledInputWrapper>
-								</StyledGroupedInput>
+										}}
+										options={[
+											{label: "none", value: "none"},
+											{label: "dotted", value: "dotted"},
+											{label: "dashed", value: "dashed"},
+											{label: "solid", value: "solid"}
+										]}
+									/>
+									<ColorPicker
+										value={(currentSlot as Dekk.SlotModel).format.border.color}
+										onChange={colorValue =>
+											currentSlot &&
+											props.setSlotBorder(currentSlot.uuid, {
+												color: colorValue
+											})
+										}
+									/>
+									<StyledNumberInput
+										min={0}
+										max={100}
+										step={1}
+										value={(currentSlot as Dekk.SlotModel).format.border.width}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+											const {value} = e.target;
+											if (currentSlot) {
+												props.setSlotBorder(currentSlot.uuid, {
+													width: parseInt(value, 10)
+												});
+											}
+										}}
+									/>
+								</Grid>
 							</Box>
 							<Separator />
 							<Box>
@@ -226,48 +213,62 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 										}
 									}}
 								/>
-								<StyledGroupedInput>
-									<StyledInputWrapper>
-										<Input
-											type="number"
-											value={(currentSlot as Dekk.SlotModel).format.shadow.offset.x.toString()}
-											onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-												const {value} = e.target;
-												if (currentSlot) {
-													const {y} = currentSlot.format.shadow.offset;
-													props.setSlotShadow(currentSlot.uuid, {
-														offset: {
-															y,
-															x: parseInt(value, 10)
-														}
-													});
+								<NumberRange
+									label="Offset X"
+									min={0}
+									max={100}
+									step={1}
+									value={(currentSlot as Dekk.SlotModel).format.shadow.offset.x}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+										const {value} = e.target;
+										if (currentSlot) {
+											const {y} = currentSlot.format.shadow.offset;
+											props.setSlotShadow(currentSlot.uuid, {
+												offset: {
+													y,
+													x: parseInt(value, 10)
 												}
-											}}
-										/>
-										<StyledInputLabel>x</StyledInputLabel>
-									</StyledInputWrapper>
-									<StyledInputWrapper>
-										<Input
-											type="number"
-											value={(currentSlot as Dekk.SlotModel).format.shadow.offset.y.toString()}
-											onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-												const {value} = e.target;
-												if (currentSlot) {
-													const {x} = currentSlot.format.shadow.offset;
-													props.setSlotShadow(currentSlot.uuid, {
-														offset: {
-															x,
-															y: parseInt(value, 10)
-														}
-													});
+											});
+										}
+									}}
+								/>
+								<NumberRange
+									label="Offset Y"
+									min={0}
+									max={100}
+									step={1}
+									value={(currentSlot as Dekk.SlotModel).format.shadow.offset.y}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+										const {value} = e.target;
+										if (currentSlot) {
+											const {x} = currentSlot.format.shadow.offset;
+											props.setSlotShadow(currentSlot.uuid, {
+												offset: {
+													x,
+													y: parseInt(value, 10)
 												}
-											}}
-										/>
-										<StyledInputLabel>y</StyledInputLabel>
-									</StyledInputWrapper>
-								</StyledGroupedInput>
+											});
+										}
+									}}
+								/>
 							</Box>
 							<Separator />
+							<Box>
+								<NumberRange
+									label="Opacity"
+									min={0}
+									max={1}
+									step={0.01}
+									value={(currentSlot as Dekk.SlotModel).format.opacity}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+										const {value} = e.target;
+										if (currentSlot) {
+											props.setSlotOpacity(currentSlot.uuid, parseFloat(value));
+										}
+									}}
+								/>
+							</Box>
+							<Separator/>
 						</React.Fragment>
 					)
 				},
@@ -526,6 +527,7 @@ export const TextSidebar = connect(
 		setSlotBorder,
 		setSlotShadow,
 		setSlotColor,
+		setSlotOpacity,
 		setSlotType
 	} as Dekk.SidebarActions
 )(TextSidebarImpl);

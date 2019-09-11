@@ -1,7 +1,6 @@
 import styled, {css} from "styled-components";
 import {palette} from "../theme";
 import React from "react";
-import Patterns from "./patterns";
 import {OutsideClick} from "./outside-click";
 import {Dropdown} from "./dropdown";
 import {Icon, StyledSvg} from "./icon";
@@ -32,11 +31,11 @@ const colorSwatches = [
 	palette.red[900],
 	palette.pink[900],
 	palette.white,
-	palette.grey[200],
+	palette.grey[300],
 	palette.grey[500],
-	palette.grey[800],
-	palette.black,
-	"transparent"
+	palette.grey[700],
+	palette.grey[900],
+	palette.black
 ];
 const Swatch = styled.button<{isSelected?: boolean}>`
 	position: relative;
@@ -45,8 +44,18 @@ const Swatch = styled.button<{isSelected?: boolean}>`
 	border-radius: 0;
 	border: 0;
 	margin: 0.5px;
-	box-shadow: inset 0 0 1px 1px rgba(255, 255, 255, 0.25);
-	background-image: linear-gradient(30deg, black 50%, white 50%);
+	background-image: linear-gradient(-210deg, black 50%, white 50%);
+	&::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: inherit;
+		box-shadow: inset 0 0 1px 1px rgba(255, 255, 255, 0.25);
+		pointer-events: none;
+	}
 	&:focus {
 		z-index: 2;
 	}
@@ -69,8 +78,7 @@ const Swatches = styled.div`
 const ColorPickerWrapper = styled.div`
 	position: relative;
 	display: flex;
-	margin: 4px;
-	width: 96px;
+	width: 72px;
 `;
 const ColorPickerLabel = styled.label`
 	position: relative;
@@ -78,12 +86,11 @@ const ColorPickerLabel = styled.label`
 	align-items: center;
 	align-content: center;
 	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border: 1px solid ${props => props.theme.colorpicker.borderColor};
+	width: 24px;
+	height: 24px;
+	box-shadow: 0 0 0 1px ${props => props.theme.colorpicker.borderColor};
 	background: ${props => props.theme.colorpicker.background1};
-	border-left: 0;
-	border-radius: 0 3px 3px 0;
+	border-radius: 0 5px 5px 0;
 	overflow: hidden;
 
 	&:hover {
@@ -95,15 +102,17 @@ const ColorPickerSwatches = styled.a.attrs({href: "#"})<{transparent?: boolean}>
 	align-items: center;
 	align-content: center;
 	justify-content: flex-end;
-	border: 1px solid ${props => props.theme.colorpicker.borderColor};
-	background: ${props => props.theme.colorpicker.background1};
+	box-shadow: 0 0 0 1px ${props => props.theme.colorpicker.borderColor};
+	background-image: linear-gradient(-206.5deg, black 50%, white 50%);
 	position: relative;
 	overflow: hidden;
-	width: 64px;
-	height: 32px;
-	padding: 4px;
-	border-radius: 3px 0 0 3px;
+	width: 48px;
+	height: 24px;
+	padding: 0 4px;
+	border-radius: 5px 0 0 5px;
+	
 	${StyledSvg} {
+		font-size: 16px;
 		position: relative;
 		z-index: 1;
 		display: none;
@@ -118,32 +127,17 @@ const ColorPickerSwatches = styled.a.attrs({href: "#"})<{transparent?: boolean}>
 			display: block;
 		}
 	}
-	${props => props.transparent && css`
-		&::before {
-			content: "";
-			position: absolute;
-			border-radius: inherit;
-			top: 0;
-			left: 0;
-			height: inherit;
-			width: inherit;
-			background: ${props => props.theme.palette.white};
-			pointer-events: none;
-		}
-		&::after {
-			content: "";
-			position: absolute;
-			top: 0;
-			right: 0;
-			height: 1px;
-			width: 72px;
-			background: ${props => props.theme.palette.red[500]};
-			margin-top: -1px;
-			transform-origin: 100% 0;
-			transform: rotate(-26.5deg);
-			pointer-events: none;
-		}
-	`};
+	&::after {
+		content: "";
+		position: absolute;
+		border-radius: inherit;
+		top: 0;
+		left: 0;
+		height: inherit;
+		width: inherit;
+		background-color: inherit;
+		pointer-events: none;
+	}
 `;
 const ColorPickerInput = styled.input.attrs({
 	type: "color"
@@ -165,7 +159,7 @@ const ColorPickerDropdown: React.ForwardRefExoticComponent<{
 				<Swatch
 					key={colorValue}
 					isSelected={props.value === colorValue}
-					style={colorValue !== "transparent" ? {background: colorValue} : undefined}
+					style={{backgroundColor: colorValue}}
 					onClick={(e: React.MouseEvent) => {
 						e.preventDefault();
 						props.setDropdown(false);
@@ -185,11 +179,10 @@ export const ColorPicker: React.FunctionComponent<{
 	const [withDropdown, setDropdown] = React.useState(false);
 	return (
 		<ColorPickerWrapper>
-			<Patterns />
 			<ColorPickerSwatches
 				tabIndex={0}
 				transparent={props.value === "transparent"}
-				style={{background: props.value}}
+				style={{backgroundColor: props.value}}
 				ref={swatchesRef as React.Ref<HTMLAnchorElement>}
 				onClick={(e: React.MouseEvent) => {
 					e.preventDefault();

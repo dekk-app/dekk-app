@@ -34,7 +34,7 @@ export interface BoundingBox {
 	size: SizeModel;
 }
 
-export type SnapHandler = (b: BoundingBox) => boolean | Partial<PositionModel>;
+export type SnapHandler = (b: BoundingBox) => Partial<PositionModel>;
 
 export interface DnrProps {
 	snap?: SnapHandler;

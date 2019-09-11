@@ -77,7 +77,7 @@ export const StyledAttribution = styled.div`
 
 export const StyledImage = styled.img`
 	${slotMixin};
-	object-fit: contain;
+	object-fit: cover;
 	object-position: 50% 50%;
 `;
 

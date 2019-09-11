@@ -1,6 +1,5 @@
 import React from "react";
 import styled, {css} from "styled-components";
-import {StyledSelect} from "./select";
 import {Flex, Flexbox} from "./layout";
 
 export const StyledRange = styled.input.attrs({
@@ -123,13 +122,13 @@ export const StyledInput = styled.input`
 	line-height: 16px;
 	min-width: 30px;
 	border: 0;
-	border-radius: 3px;
+	border-radius: 0;
 
 	${({theme}) => css`
 		background: ${theme.input.background1};
 		color: ${theme.input.color};
-		box-shadow: inset 0 1px 0 ${theme.input.borderColor1},
-			inset 0 -1px 0 ${theme.input.borderColor2};
+		box-shadow: inset 0 -1px 0 ${theme.input.borderColor1},
+			inset 0 1px 0 ${theme.input.borderColor2};
 	`};
 
 	&:focus {
@@ -171,10 +170,10 @@ export const StyledNumberInput = styled.input.attrs({
 		&::-webkit-textfield-decoration-container {
 			padding: 4px 0 4px 8px;
 			margin-right: -4px;
-			border-radius: 3px;
+			border-radius: 0;
 			background: ${theme.input.background1};
-			box-shadow: inset 0 1px 0 ${theme.input.borderColor1},
-				inset 0 -1px 0 ${theme.input.borderColor2};
+			box-shadow: inset 0 -1px 0 ${theme.input.borderColor1},
+				inset 0 1px 0 ${theme.input.borderColor2};
 		}
 		&::-webkit-inner-spin-button {
 			opacity: 1;
@@ -214,23 +213,19 @@ export const StyledGroupedInput = styled.div`
 		align-content: stretch;
 		align-items: stretch;
 		flex: 1;
-		&:first-child ${StyledInput}, &:first-child ${StyledSelect} {
-			border-radius: 3px 0 0 3px;
+		&:first-child ${StyledInput} {
 			${({theme}) => css`
-				box-shadow: inset 0 1px 0 ${theme.input.borderColor1},
-					inset 0 -1px 0 ${theme.input.borderColor2};
+				box-shadow: inset 0 -1px 0 ${theme.input.borderColor1},
+					inset 0 1px 0 ${theme.input.borderColor2};
 			`};
 		}
-		&:last-child ${StyledInput}, &:last-child ${StyledSelect} {
-			border-radius: 0 3px 3px 0;
-		}
 	}
-	${StyledInput}, ${StyledSelect} {
+	${StyledInput} {
 		width: 100%;
 		border-radius: 0;
 		${({theme}) => css`
-			box-shadow: inset 0 1px 0 ${theme.input.borderColor1},
-				inset 0 -1px 0 ${theme.input.borderColor2},
+			box-shadow: inset 0 -1px 0 ${theme.input.borderColor1},
+				inset 0 1px 0 ${theme.input.borderColor2},
 				inset 1px 0 0 ${theme.input.borderColor2};
 		`};
 	}

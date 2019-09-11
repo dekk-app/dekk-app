@@ -16,6 +16,7 @@ const SET_BACKGROUND = "slots:SET_BACKGROUND";
 const SET_BORDER = "slots:SET_BORDER";
 const SET_SHADOW = "slots:SET_SHADOW";
 const SET_COLOR= "slots:SET_COLOR";
+const SET_OPACITY= "slots:SET_OPACITY";
 
 const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel}> = (
 	state = [],
@@ -68,6 +69,14 @@ const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel}> =
 						}
 					}});
 		case SET_BACKGROUND:
+			return update(state, {
+				[slotIndex]: {
+					format: {
+						$merge: data.format as Dekk.SlotFormat
+					}
+				}
+			});
+		case SET_OPACITY:
 			return update(state, {
 				[slotIndex]: {
 					format: {
@@ -163,6 +172,11 @@ export const setEditorState = (uuid: Dekk.UUID, editorState: any) => ({
 export const setBackground = (uuid: Dekk.UUID, background: string) => ({
 	type: SET_BACKGROUND,
 	data: {format: {background}, uuid}
+});
+
+export const setOpacity = (uuid: Dekk.UUID, opacity: number) => ({
+	type: SET_OPACITY,
+	data: {format: {opacity}, uuid}
 });
 
 export const setBorder = (uuid: Dekk.UUID, border: Dekk.Border) => ({

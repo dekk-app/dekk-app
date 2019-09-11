@@ -1,9 +1,10 @@
-import Color from "color"
+import Color from "color";
 import Draft from "draft-js";
 import {stateToHTML} from "draft-js-export-html";
 import React from "react";
 import {renderToStaticMarkup} from "react-dom/server";
 import {connect} from "react-redux";
+import {v4 as uuid} from "uuid";
 import {select} from "../store/current-slot";
 import {
 	setEditorState,
@@ -25,9 +26,13 @@ import {
 	TextAlignRight
 } from "../elements";
 import {DnR} from "./dnr";
-import {BoundingBox, PositionModel} from "./dnr/types";
+import {BoundingBox} from "./dnr/types";
+import styled from "styled-components";
 
-const createColor = (colorValue: string, alpha: number) => Color(colorValue).alpha(alpha).string();
+const createColor = (colorValue: string, alpha: number) =>
+	Color(colorValue)
+		.alpha(alpha)
+		.string();
 
 const thumbBuilderOptions = {
 	inlineStyles: {},
@@ -48,16 +53,23 @@ const thumbBuilderOptions = {
 };
 
 const buildThumb = (slot: Dekk.SlotModel) => {
-	const __html = stateToHTML(slot.editorState.getCurrentContent(), thumbBuilderOptions);
+	const __html =
+		slot.editorState && stateToHTML(slot.editorState.getCurrentContent(), thumbBuilderOptions);
 	const style: React.CSSProperties = {
 		position: "absolute",
 		display: "flex",
 		alignItems: ALIGN_ITEMS[slot.verticalAlignment],
 		transform: `translate3d(${slot.position.x}px, ${slot.position.y}px, 0) translate3d(-50%, -50%, 0) rotate3d(0, 0, 1, ${slot.rotation.z}deg)`,
 		background: slot.format.background,
+		opacity: slot.format.opacity,
 		color: slot.format.color,
 		border: `${slot.format.border.width}px ${slot.format.border.style} ${slot.format.border.color}`,
-		boxShadow: `${slot.format.shadow.offset.x}px ${slot.format.shadow.offset.y}px ${slot.format.shadow.blur}px ${slot.format.shadow.spread}px ${createColor(slot.format.shadow.color, slot.format.shadow.alpha)}`,
+		boxShadow: `${slot.format.shadow.offset.x}px ${slot.format.shadow.offset.y}px ${
+			slot.format.shadow.blur
+		}px ${slot.format.shadow.spread}px ${createColor(
+			slot.format.shadow.color,
+			slot.format.shadow.alpha
+		)}`,
 		...slot.size
 	};
 	return slot.type === StyledImage ? (
@@ -72,9 +84,8 @@ const inRange = (value: number, target: number, threshold: number) =>
 
 const snapToGuides = (
 	b: BoundingBox,
-	ref: React.RefObject<HTMLDivElement>,
-	setGuides?: (b: Partial<PositionModel>) => void
-) => {
+	ref: React.RefObject<HTMLDivElement>
+): Partial<Dekk.Snap>[] => {
 	if (ref && ref.current) {
 		const {clientWidth, clientHeight} = ref.current;
 		const threshold = 20;
@@ -83,52 +94,88 @@ const snapToGuides = (
 		const quarterRelativeY = clientHeight / 4;
 		const centeredX = b.position.x;
 		const centeredY = b.position.y;
-		if (
-			inRange(centeredX, halfRelativeX, threshold) &&
-			inRange(centeredY, quarterRelativeY, threshold)
-		) {
-			setGuides && setGuides({x: halfRelativeX, y: quarterRelativeY});
-			return {x: halfRelativeX, y: quarterRelativeY};
-		}
-		if (
-			inRange(centeredX, halfRelativeX, threshold) &&
-			inRange(centeredY, halfRelativeY, threshold)
-		) {
-			setGuides && setGuides({x: halfRelativeX, y: halfRelativeY});
-			return {x: halfRelativeX, y: halfRelativeY};
-		}
-		if (
-			inRange(centeredX, halfRelativeX, threshold) &&
-			inRange(centeredY, quarterRelativeY * 3, threshold)
-		) {
-			setGuides && setGuides({x: halfRelativeX, y: quarterRelativeY * 3});
-			return {x: halfRelativeX, y: quarterRelativeY * 3};
-		}
+		const snapV: Partial<Dekk.Snap> = {uuid: uuid()};
+		const snapH: Partial<Dekk.Snap> = {uuid: uuid()};
+
 		if (inRange(centeredX, halfRelativeX, threshold)) {
-			setGuides && setGuides({x: halfRelativeX});
-			return {x: halfRelativeX};
-		}
-		if (inRange(centeredY, quarterRelativeY, threshold)) {
-			setGuides && setGuides({y: quarterRelativeY});
-			return {y: quarterRelativeY};
+			snapH.x1 = halfRelativeX;
+			snapH.x2 = halfRelativeX;
+			snapH.y1 = 0;
+			snapH.y2 = 800;
+			snapH.x = halfRelativeX;
 		}
 		if (inRange(centeredY, halfRelativeY, threshold)) {
-			setGuides && setGuides({y: halfRelativeY});
-			return {y: halfRelativeY};
+			snapV.y1 = halfRelativeY;
+			snapV.y2 = halfRelativeY;
+			snapV.x1 = 0;
+			snapV.x2 = 1200;
+			snapV.y = halfRelativeY;
+		}
+		if (inRange(centeredY, quarterRelativeY, threshold)) {
+			snapV.y1 = quarterRelativeY;
+			snapV.y2 = quarterRelativeY;
+			snapV.x1 = 0;
+			snapV.x2 = 1200;
+			snapV.y = quarterRelativeY;
 		}
 		if (inRange(centeredY, quarterRelativeY * 3, threshold)) {
-			setGuides && setGuides({y: quarterRelativeY * 3});
-			return {y: quarterRelativeY * 3};
+			snapV.y1 = quarterRelativeY * 3;
+			snapV.y2 = quarterRelativeY * 3;
+			snapV.x1 = 0;
+			snapV.x2 = 1200;
+			snapV.y = quarterRelativeY * 3;
 		}
-		setGuides && setGuides({});
-		return false;
+		return [snapV, snapH].filter(({x, y}) => x !== undefined || y !== undefined);
 	}
-	setGuides && setGuides({});
-	return false;
+	return [];
+};
+
+const snapToSiblings = (
+	b: BoundingBox,
+	siblings: Dekk.SlotModel[],
+	previousSnap: Partial<Dekk.Snap>[]
+): Partial<Dekk.Snap>[] => {
+	const threshold = 20;
+	const centeredX = b.position.x;
+	const centeredY = b.position.y;
+	const matchesX = siblings.filter(({position}) => inRange(centeredX, position.x, threshold));
+	const snapV: Partial<Dekk.Snap> = {uuid: uuid()};
+	const snapH: Partial<Dekk.Snap> = {uuid: uuid()};
+
+	const previousGuides: Partial<Dekk.Snap> = previousSnap.reduce(
+		(prev, next) => ({...prev, ...next}),
+		{}
+	);
+	if (matchesX.length) {
+		const [firstMatch] = matchesX;
+		const before = b.position.y < firstMatch.position.y;
+		snapH.x1 = firstMatch.position.x;
+		snapH.x2 = firstMatch.position.x;
+		snapH.y1 = firstMatch.position.y + (firstMatch.size.height as number) / (before ? 2 : -2);
+		snapH.y2 =
+			(previousGuides.y !== undefined ? previousGuides.y : b.position.y) +
+			b.size.height / (before ? -2 : 2);
+		snapH.x = firstMatch.position.x;
+	}
+	const matchesY = siblings.filter(({position}) => inRange(centeredY, position.y, threshold));
+	if (matchesY.length) {
+		const [firstMatch] = matchesY;
+		const before = b.position.x < firstMatch.position.x;
+		snapV.y1 = firstMatch.position.y;
+		snapV.y2 = firstMatch.position.y;
+		snapV.x1 = firstMatch.position.x + (firstMatch.size.width as number) / (before ? 2 : -2);
+		snapV.x2 =
+			(previousGuides.x !== undefined ? previousGuides.x : b.position.x) +
+			b.size.width / (before ? -2 : 2);
+		snapV.y = firstMatch.position.y;
+	}
+	return [snapV, snapH].filter(({x, y}) => x !== undefined || y !== undefined);
 };
 
 const ToSlotImpl = ({
 	currentSlot,
+	currentSlide,
+	slides,
 	asThumb,
 	selectSlot,
 	setSlotPosition,
@@ -144,7 +191,9 @@ const ToSlotImpl = ({
 	zoomLevel
 }: Dekk.ToSlotProps) => {
 	const slotRef = React.useRef();
-	const slot = uuid && slots.find(slot => slot.uuid === uuid);
+	const slot = uuid && slots.find(item => item.uuid === uuid);
+	const slide = currentSlide && slides.find(item => item.uuid === currentSlide);
+	const slideSlots = slide ? slide.slots : [];
 	if (!slot) {
 		return null;
 	}
@@ -159,9 +208,22 @@ const ToSlotImpl = ({
 			{({setGuides}) => (
 				<DnR
 					scale={zoomLevel}
-					snap={b =>
-						snapToGuides(b, slideRef as React.RefObject<HTMLDivElement>, setGuides)
-					}
+					snap={b => {
+						const snap: Partial<Dekk.Snap>[] = [
+							...snapToGuides(b, slideRef as React.RefObject<HTMLDivElement>)
+						];
+						snap.push(
+							...snapToSiblings(
+								b,
+								slots.filter(
+									({uuid}) => slideSlots.includes(uuid) && uuid !== currentSlot
+								),
+								snap
+							)
+						);
+						setGuides && setGuides(snap);
+						return snap.reduce((prev, next) => ({...prev, ...next}), {});
+					}}
 					size={slot.size}
 					position={slot.position}
 					rotation={slot.rotation}
@@ -174,7 +236,7 @@ const ToSlotImpl = ({
 					onDragEnd={({size, position}) => {
 						setSlotSize(slot.uuid, size);
 						setSlotPosition(slot.uuid, position);
-						setGuides && setGuides({});
+						setGuides && setGuides([]);
 					}}
 					onResizeEnd={({size, position}) => {
 						setSlotSize(slot.uuid, size);
@@ -206,9 +268,17 @@ const ToSlotImpl = ({
 							style={{
 								...((slot.props && slot.props.style) || {}),
 								color: slot.format.color,
+								opacity: slot.format.opacity,
 								background: slot.format.background,
 								border: `${slot.format.border.width}px ${slot.format.border.style} ${slot.format.border.color}`,
-								boxShadow: `${slot.format.shadow.offset.x}px ${slot.format.shadow.offset.y}px ${slot.format.shadow.blur}px ${slot.format.shadow.spread}px ${createColor(slot.format.shadow.color, slot.format.shadow.alpha)}`
+								boxShadow: `${slot.format.shadow.offset.x}px ${
+									slot.format.shadow.offset.y
+								}px ${slot.format.shadow.blur}px ${
+									slot.format.shadow.spread
+								}px ${createColor(
+									slot.format.shadow.color,
+									slot.format.shadow.alpha
+								)}`
 							}}>
 							<SlotEditor
 								ref={editorRef}
@@ -228,7 +298,8 @@ const ToSlotImpl = ({
 };
 
 export const ToSlot = connect(
-	({slots, currentSlot}: Dekk.Store) => ({slots, currentSlot} as Dekk.ToSlotState),
+	({slots, currentSlot, slides, currentSlide}: Dekk.Store) =>
+		({slots, currentSlot, slides, currentSlide} as Dekk.ToSlotState),
 	{
 		selectSlot: select,
 		setSlotValue: setValue,
@@ -241,16 +312,46 @@ export const ToSlot = connect(
 )(ToSlotImpl);
 
 const {Provider: SlideProvider, Consumer: SlideConsumer} = React.createContext<{
-	setGuides?: (p: Partial<{x: number; y: number}>) => void;
+	setGuides?: (p: Partial<Dekk.Snap>[]) => void;
 }>({});
+
+const StyledGuides = styled.svg.attrs({
+	viewBox: "0 0 1200 800"
+})`
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 3;
+	pointer-events: none;
+`;
+
+const StyledGuide = styled.line`
+	stroke: ${props => props.theme.palette.amber[500]};
+	stroke-width: 1;
+`;
+
+const Guides: React.FunctionComponent<{
+	guides: Partial<Dekk.Snap>[];
+}> = ({guides}) => {
+	return (
+		<StyledGuides>
+			{guides.map(({uuid: key, x1, x2, y1, y2}) => {
+				const line = {x1, x2, y1, y2};
+				return <StyledGuide key={key} {...line} />;
+			})}
+		</StyledGuides>
+	);
+};
 
 export const ToSlide: React.ForwardRefExoticComponent<
 	Dekk.SlideProps & {ref?: React.Ref<HTMLDivElement>; editorRef?: React.Ref<HTMLDivElement>}
 > = React.forwardRef(({editorRef, isEditable, setEditable, ...props}, ref) => {
-	const [guides, setGuides] = React.useState<Partial<PositionModel>>({});
+	const [guides, setGuides] = React.useState<Partial<Dekk.Snap>[]>([]);
 	return props.slide ? (
 		<SlideProvider value={{setGuides}}>
-			<Slide {...props} ref={ref} {...props.slide.format} guides={guides}>
+			<Slide {...props} ref={ref} {...props.slide.format}>
 				{props.slide.slots.map(uuid => (
 					<ToSlot
 						key={uuid}
@@ -263,6 +364,7 @@ export const ToSlide: React.ForwardRefExoticComponent<
 						asThumb={props.asThumb}
 					/>
 				))}
+				<Guides guides={guides} />
 			</Slide>
 		</SlideProvider>
 	) : null;

@@ -22,10 +22,11 @@ export const Select: React.FunctionComponent<{
 
 const SelectWrapper = styled.div`
 	position: relative;
+	height: 24px;
 `;
 
 const DropdownIcon = styled(Icon).attrs({
-	icon: "menuDown"
+	icon: "unfoldMoreHorizontal"
 })`
 	position: absolute;
 	z-index: 2;
@@ -33,8 +34,14 @@ const DropdownIcon = styled(Icon).attrs({
 	right: 0;
 	transform: translateY(-50%);
 	pointer-events: none;
+	border-radius: 0 5px 5px 0;
+
+
 	${({theme}) => css`
 		color: ${theme.input.color};
+		background: ${theme.input.backgroundActive};
+		box-shadow: inset 0 1px 0 ${theme.input.borderColor1},
+			inset 0 -1px 0 ${theme.input.borderColor2};
 	`};
 `;
 
@@ -45,9 +52,9 @@ export const StyledSelect = styled.select`
 	padding: 4px 24px 4px 8px;
 	height: 24px;
 	line-height: 1;
-	width: auto;
+	width: 100%;
 	border: 0;
-	border-radius: 3px;
+	border-radius: 5px;
 
 	${({theme}) => css`
 		background: ${theme.input.background1};

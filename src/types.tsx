@@ -5,11 +5,13 @@ namespace Dekk {
 	export type UUID = string;
 	export type BorderStyle =  "none" | "dashed" | "dotted" | "solid";
 	export interface Border {
+		enabled?: boolean;
 		style: BorderStyle;
 		width: number;
 		color: string;
 	}
 	export interface Shadow {
+		enabled?: boolean;
 		offset: {
 			x: number,
 			y: number,
@@ -24,6 +26,7 @@ namespace Dekk {
 		color: string;
 		border: Border;
 		shadow: Shadow;
+		opacity: number;
 	}
 
 	export interface SlideFormat {
@@ -68,6 +71,14 @@ namespace Dekk {
 		y: number;
 	}
 
+	export interface Snap extends Partial<Position> {
+		uuid: UUID;
+		x1?: number;
+		x2?: number;
+		y1?: number;
+		y2?: number;
+	}
+
 	export interface Rotation {
 		x: number;
 		y: number;
@@ -105,6 +116,8 @@ namespace Dekk {
 	export interface ToSlotState{
 		slots: SlotModel[];
 		currentSlot: UUID;
+		slides: SlideModel[];
+		currentSlide: UUID;
 	}
 
 	export interface ToSlotComponentProps {
@@ -143,6 +156,7 @@ namespace Dekk {
 		setSlotBorder: (uuid: UUID, border: Partial<Dekk.Border>) => void;
 		setSlotShadow: (uuid: UUID, shadow: Partial<Dekk.Shadow>) => void;
 		setSlotType: (uuid: UUID, type: SlotType) => void;
+		setSlotOpacity: (uuid: UUID, opacity: number) => void;
 		setSlotAlignment: (uuid: UUID, verticalAlignment: VerticalAlignment) => void;
 		moveSlotFirst: (uuid: UUID, slotId: UUID) => void;
 		moveSlotLast: (uuid: UUID, slotId: UUID) => void;

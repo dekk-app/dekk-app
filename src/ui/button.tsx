@@ -30,7 +30,8 @@ export const StyledButton = styled.button<{
 	border-radius: 3px;
 
 	${StyledSvg} {
-		margin: -4px 4px;
+		font-size: 16px;
+		margin: 0 4px;
 	}
 
 	&:focus {

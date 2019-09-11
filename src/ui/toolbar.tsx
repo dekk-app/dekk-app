@@ -2,7 +2,7 @@ import React from "react";
 import styled, {css} from "styled-components";
 import {StyledButton, StyledButtonLabel, StyledButtonWrapper} from "./button";
 import {StyledHeader} from "./header";
-import {Icon} from "./icon";
+import {Icon, StyledSvg} from "./icon";
 
 const StyledToolbar = styled(StyledHeader)`
 	-webkit-app-region: drag;
@@ -29,7 +29,11 @@ const StyledToolbarTitle = styled.h1`
 	font-weight: normal;
 `;
 
-const StyledToolbarButton = styled(StyledButton)``;
+const StyledToolbarButton = styled(StyledButton)`
+	${StyledSvg} {
+		font-size: 16px;
+	}
+`;
 
 const StyledToolbarFlex = styled.div`
 	flex: 1;

@@ -38,12 +38,13 @@ import {
 import {SlideLink} from "./slide-thumb";
 import {ToSlide} from "./to-react";
 import {Toolbar, ToolbarButton, ToolbarFlex} from "./toolbar";
-import {COVER, createFromMaster, createSlot, getSlotRect} from "./masters";
+import {PHOTO_VERTICAL, createFromMaster, createSlot, getSlotRect} from "./masters";
 import {TextSidebar} from "./text-sidebar";
 import {ImageSidebar} from "./image-sidebar";
 import {ColorPicker} from "./color-picker";
 import {Section} from "./section";
 import {palette} from "../theme";
+import Patterns from "./patterns";
 
 const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props}) => {
 	const [zoomLevel, setZoomLevel] = React.useState(1);
@@ -54,13 +55,13 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 	}, [props.currentSlot]);
 	React.useEffect(() => {
 		if (!props.currentSlot || isEditable) {
-			return
+			return;
 		}
 		const handleDelete = (e: KeyboardEvent) => {
 			const {which} = e;
 			if (which === 8) {
 				props.dischargeSlot(props.currentSlide, props.currentSlot);
-				props.removeSlot( props.currentSlot);
+				props.removeSlot(props.currentSlot);
 			}
 		};
 		window.addEventListener("keydown", handleDelete);
@@ -70,8 +71,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 	}, [props.currentSlot, isEditable, props.dischargeSlot, props.removeSlot]);
 	React.useEffect(() => {
 		if (!props.slides.length) {
-			const {uuid} = addSlide();
-			props.selectSlide(uuid);
+			addSlide().then(({uuid}) => props.selectSlide(uuid));
 		}
 		const handleScale = (e: KeyboardEvent) => {
 			const {metaKey, which} = e;
@@ -96,8 +96,8 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 	}, [setZoomLevel, props.slides, props.selectSlide]);
 	const refElement = React.useRef(null);
 	const editorRef: React.RefObject<any> = React.useRef(null);
-	const addSlide = () => {
-		const {slots, slide} = createFromMaster(COVER);
+	const addSlide = async () => {
+		const {slots, slide} = await createFromMaster(PHOTO_VERTICAL);
 		const slideOrder = `${props.slides.length}`;
 		slots.forEach(slot => props.addSlot(slot));
 		props.addSlide({...slide, order: slideOrder});
@@ -134,6 +134,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 	return (
 		<Layout sidebarLeft={true} sidebarRight={true}>
 			<GlobalStyle />
+			<Patterns />
 			<Toolbar title="Untitled">
 				<ToolbarButton label="View" icon="view" />
 				<ToolbarButton
@@ -151,7 +152,12 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 				<ToolbarButton label="Add Slide" icon="add" onClick={addSlide} />
 				<ToolbarFlex />
 				<ToolbarButton label="Text" icon="text" onClick={addTextSlot} />
-				<ToolbarButton label="Image" icon="media" iconColor={palette.blue[500]} onClick={addImageSlot} />
+				<ToolbarButton
+					label="Image"
+					icon="media"
+					iconColor={palette.blue[500]}
+					onClick={addImageSlot}
+				/>
 				<ToolbarFlex />
 				<StyledGroupedButton>
 					<ToolbarButton label="Format" icon="formatPaint" />
@@ -178,8 +184,8 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 								slideIndex={sorting.findIndex(order => slide.order == order) + 1}
 								onMouseDown={() => {
 									props.selectSlot("");
-									props.selectSlide(slide.uuid)}
-								}
+									props.selectSlide(slide.uuid);
+								}}
 								isActive={currentSlide && currentSlide.uuid === slide.uuid}>
 								<ToSlide zoomLevel={156 / 1200} asThumb slide={slide} />
 							</SlideLink>
@@ -210,14 +216,16 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 								/>
 								<br />
 							</Box>
-							<Separator/>
+							<Separator />
 						</React.Fragment>
 					)}
-						{currentSlot ? currentSlot.type === StyledImage ? (
+					{currentSlot ? (
+						currentSlot.type === StyledImage ? (
 							<ImageSidebar />
 						) : (
 							<TextSidebar />
-						) : null}
+						)
+					) : null}
 				</Sidebar>
 				<Main>
 					<View zoomLevel={zoomLevel}>

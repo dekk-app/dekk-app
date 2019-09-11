@@ -5,7 +5,10 @@ import {
 	setProps as setSlotProps,
 	setVerticalAlignment as setSlotAlignment,
 	setBackground as setSlotBackground,
-	setColor as setSlotColor
+	setColor as setSlotColor,
+	setBorder as setSlotBorder,
+	setShadow as setSlotShadow,
+	setOpacity as setSlotOpacity
 } from "../store/slots";
 import React from "react";
 import {FileInput} from "./file-input";
@@ -42,7 +45,10 @@ export const ImageSidebar = connect(
 		setSlotAlignment,
 		setSlotProps,
 		setSlotBackground,
+		setSlotBorder,
+		setSlotShadow,
 		setSlotColor,
+		setSlotOpacity,
 		setSlotType
 	} as Dekk.SidebarActions
 )(ImageSidebarImpl);
