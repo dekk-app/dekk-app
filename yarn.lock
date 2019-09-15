@@ -7197,6 +7197,11 @@ react-rnd@^10.0.0:
     react-draggable "3.3.0"
     tslib "1.10.0"
 
+react-router-static@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-router-static/-/react-router-static-1.0.0.tgz#ec1ba3d31d88f6a975441412c20167c3007174f6"
+  integrity sha512-6VPHFny/2AlYRFeDQOxlmk296MKyFEgOp7ExQxAuD/EzTAnHL4hzVKpOAfswWeE6txuuvcNo4BVi3av9s0YIPA==
+
 react-select@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-select/-/react-select-3.0.4.tgz#16bde37c24fd4f6444914d4681e78f15ffbc86d3"

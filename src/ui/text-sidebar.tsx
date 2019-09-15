@@ -47,6 +47,8 @@ import {ColorPicker} from "./color-picker";
 import {Grid, Separator, Box, StyledSidebarSubtitle} from "./layout";
 import {NumberRange, StyledNumberInput} from "./text-input";
 import {Select} from "./select";
+// import {ColorPickerEvent, useBroadcast, useSubscribe} from "./broadcast";
+// import {getPointer} from "./window-utils";
 
 const paragraphStyles = [
 	{key: "headline", label: "Title", component: StyledHeadline},
@@ -90,6 +92,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 	const currentSlot = props.slots.find(slot => slot.uuid === props.currentSlot);
 	const [withDropdown, setDropdown] = React.useState(false);
 
+
 	return (
 		<Tabs
 			defaultActive={1}
@@ -104,8 +107,8 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 								<StyledSidebarSubtitle>Fill</StyledSidebarSubtitle>
 								<ColorPicker
 									value={(currentSlot as Dekk.SlotModel).format.background}
-									onChange={colorValue =>
-										currentSlot &&
+									propPath={"format.background"}
+									onChange={(colorValue) => currentSlot &&
 										props.setSlotBackground(currentSlot.uuid, colorValue)
 									}
 								/>
@@ -133,6 +136,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 									/>
 									<ColorPicker
 										value={(currentSlot as Dekk.SlotModel).format.border.color}
+										propPath={"format.border.color"}
 										onChange={colorValue =>
 											currentSlot &&
 											props.setSlotBorder(currentSlot.uuid, {
@@ -161,6 +165,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 								<StyledSidebarSubtitle>Shadow</StyledSidebarSubtitle>
 								<ColorPicker
 									value={(currentSlot as Dekk.SlotModel).format.shadow.color}
+									propPath={"format.shadow.color"}
 									onChange={colorValue =>
 										currentSlot &&
 										props.setSlotShadow(currentSlot.uuid, {
@@ -347,6 +352,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 								<StyledSidebarSubtitle>Color</StyledSidebarSubtitle>
 								<ColorPicker
 									value={(currentSlot as Dekk.SlotModel).format.color}
+									propPath={"format.color"}
 									onChange={colorValue =>
 										currentSlot &&
 										props.setSlotColor(currentSlot.uuid, colorValue)

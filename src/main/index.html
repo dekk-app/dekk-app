@@ -1,0 +1,253 @@
+<!DOCTYPE >
+<html>
+  <head>
+    <title>Popover</title>
+    <style>
+      body {
+        margin: 0;
+        pointer-events: none;
+      }
+      [data-clickable-region] {
+        pointer-events: auto;
+      }
+      * {
+        box-sizing: border-box;
+      }
+
+      .popover {
+        width: 200px;
+        height: 200px;
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        display: flex;
+      }
+
+      .popover svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow: visible;
+      }
+
+      .popover path {
+        stroke: rgba(255, 255, 255, 0.25);
+        stroke-width: 1;
+        fill: rgba(70, 70, 70, 0.8);
+        vector-effect: non-scaling-stroke;
+        filter: url(#dropshadow);
+      }
+
+      .content {
+        pointer-events: all;
+        position: relative;
+        padding: 5px;
+        width: 100%;
+        margin-top: 12px;
+        flex: 1;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg height="0" width="0" style="position: absolute; left: -100vh;">
+      <defs>
+        <filter id="dropshadow" height="150%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur"></feGaussianBlur>
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur2"></feGaussianBlur>
+          <feColorMatrix
+            in="blur"
+            result="blurAlpha"
+            type="matrix"
+            values="1 0 0 0   0
+                     0 1 0 0   0
+                     0 0 1 0   0
+                     0 0 0 1 0 "
+          ></feColorMatrix>
+          <feColorMatrix
+            in="blur2"
+            result="blurAlpha2"
+            type="matrix"
+            values="1 0 0 0   0
+                     0 1 0 0   0
+                     0 0 1 0   0
+                     0 0 0 0.75 0 "
+          ></feColorMatrix>
+          <feOffset in="blurAlpha" dx="0" dy="0" result="offsetBlur"></feOffset>
+          <feOffset in="blurAlpha2" dx="0" dy="2" result="offsetBlur2"></feOffset>
+          <feMerge>
+            <feMergeNode in="offsetBlur"></feMergeNode>
+            <feMergeNode in="offsetBlur2"></feMergeNode>
+            <feMergeNode in="SourceGraphic"></feMergeNode>
+          </feMerge>
+        </filter>
+      </defs>
+    </svg>
+    <div class="popover" data-tip-offset="-75">
+      <svg><path data-clickable-region /></svg>
+      <div class="content" data-clickable-region>
+        <button id="CLOSE">Close Window</button>
+        <button class="swatch" data-color="red">Red</button>
+        <button class="swatch" data-color="green">Green</button>
+        <button class="swatch" data-color="blue">Blue</button>
+      </div>
+    </div>
+    <script>
+      const {ipcRenderer, remote} = require("electron");
+
+      const SWATCHES = document.querySelectorAll(".swatch");
+      SWATCHES.forEach(swatch => {
+        swatch.addEventListener("click", e => {
+          ipcRenderer.send("IT_WORKS", {...swatch.dataset});
+        });
+      });
+
+      const CLOSE = document.getElementById("CLOSE");
+      CLOSE.addEventListener("click", e => {
+        remote.getCurrentWindow().hide();
+      });
+      const clickableAreas = document.querySelectorAll("[data-clickable-region]");
+      clickableAreas.forEach(area => {
+        area.addEventListener("click", () => {});
+        area.addEventListener("pointerover", () => {
+          remote.getCurrentWindow().setIgnoreMouseEvents(false);
+        });
+        area.addEventListener("pointerout", () => {
+          remote.getCurrentWindow().setIgnoreMouseEvents(true, {forward: true});
+        });
+      });
+
+      const popover = document.querySelector(".popover");
+
+      const content = popover.querySelector(".content");
+      const path = popover.querySelector("path");
+      const svg = popover.querySelector("svg");
+
+      const width = 200;
+      const height = 200;
+      const centerX = width / 2;
+      const tY = 12.5;
+      const tX = 11;
+      const tR = 1;
+      const XX = 3;
+      const YY = 2;
+      const cR = 6;
+
+      const {tipOffset} = popover.dataset;
+
+      const offsetX = parseInt(tipOffset);
+      const dir = tipOffset && offsetX < 0 ? -1 : 1;
+
+      const tO = tipOffset ? offsetX : 0; //tipOffset ? dir *(centerX - tX - XX - tR - Math.abs(offsetX)) : 0;
+
+      const d = [
+        "M",
+        0,
+        tY + cR,
+        "L",
+        0,
+        tY + cR,
+        "C",
+        0,
+        tY + cR,
+        0,
+        tY,
+        cR,
+        tY,
+        "L",
+        cR,
+        tY,
+        "L",
+        centerX + tO - tX - XX,
+        tY,
+        "C",
+        centerX + tO - tX - XX,
+        tY,
+        centerX + tO - tX,
+        tY,
+        centerX + tO - tX + YY,
+        tY - YY,
+        "L",
+        centerX + tO - tX + YY,
+        tY - YY,
+
+        "L",
+        centerX + tO - tR,
+        tR,
+        "C",
+        centerX + tO - tR,
+        tR,
+        centerX + tO,
+        0,
+        centerX + tO + tR,
+        tR,
+        "L",
+        centerX + tO + tR,
+        tR,
+
+        "L",
+        centerX + tO + tX - YY,
+        tY - YY,
+        "C",
+        centerX + tO + tX - YY,
+        tY - YY,
+        centerX + tO + tX,
+        tY,
+        centerX + tO + tX + XX,
+        tY,
+        "L",
+        centerX + tO + tX + XX,
+        tY,
+
+        "L",
+        width - cR,
+        tY,
+        "C",
+        width - cR,
+        tY,
+        width,
+        tY,
+        width,
+        tY + cR,
+        "L",
+        width,
+        tY + cR,
+        "L",
+        width,
+        height - cR,
+        "C",
+        width,
+        height - cR,
+        width,
+        height,
+        width - cR,
+        height,
+        "L",
+        width - cR,
+        height,
+        "L",
+        cR,
+        height,
+        "C",
+        cR,
+        height,
+        0,
+        height,
+        0,
+        height - cR,
+        "L",
+        0,
+        height - cR,
+        "L",
+        0,
+        tY + +cR
+      ]
+        .map(x => (Array.isArray(x) ? x.join(",") : x))
+        .join(" ");
+
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      svg.setAttribute("width", width * 1);
+      path.setAttribute("d", d);
+    </script>
+  </body>
+</html>

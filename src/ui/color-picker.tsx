@@ -1,9 +1,14 @@
 import styled, {css} from "styled-components";
 import {palette} from "../theme";
 import React from "react";
-import {OutsideClick} from "./outside-click";
 import {Dropdown} from "./dropdown";
 import {Icon, StyledSvg} from "./icon";
+import {getPointer} from "./window-utils";
+import {
+	ColorPickerEvent,
+	useBroadcast,
+	useSubscribe
+} from "./broadcast";
 
 const colorSwatches = [
 	palette.indigo[300],
@@ -63,16 +68,17 @@ const Swatch = styled.button<{isSelected?: boolean}>`
 		props.isSelected &&
 		css`
 			z-index: 1;
-			box-shadow: 0 0 0 2px ${props.theme.palette.white}, inset 0 0 0 1px ${props.theme.palette.white};
+			box-shadow: 0 0 0 2px ${props.theme.palette.white},
+				inset 0 0 0 1px ${props.theme.palette.white};
 		`}
 `;
 const Swatches = styled.div`
-	width: 220px;
+	width: 200px;
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
 	grid-template-rows: repeat(5, 20px);
 	grid-gap: 1px;
-	padding: 10px;
+	padding: 5px;
 	overflow: visible;
 `;
 const ColorPickerWrapper = styled.div`
@@ -110,7 +116,7 @@ const ColorPickerSwatches = styled.a.attrs({href: "#"})<{transparent?: boolean}>
 	height: 24px;
 	padding: 0 4px;
 	border-radius: 5px 0 0 5px;
-	
+
 	${StyledSvg} {
 		font-size: 16px;
 		position: relative;
@@ -147,38 +153,67 @@ const ColorPickerInput = styled.input.attrs({
 	right: 100%;
 `;
 
-const ColorPickerDropdown: React.ForwardRefExoticComponent<{
-	value?: string;
-	isVisible?: boolean;
+export const ColorPickerWindow: React.ForwardRefExoticComponent<{
+	value: string | null;
 	onChange: (colorValue: string) => void;
-	setDropdown: (bool: boolean) => void;
-}> = React.forwardRef((props, ref) => (
-	<Dropdown ref={ref} isVisible={props.isVisible}>
-		<Swatches>
-			{colorSwatches.map(colorValue => (
-				<Swatch
-					key={colorValue}
-					isSelected={props.value === colorValue}
-					style={{backgroundColor: colorValue}}
-					onClick={(e: React.MouseEvent) => {
-						e.preventDefault();
-						props.setDropdown(false);
-						props.onChange(colorValue);
-					}}
-				/>
-			))}
-		</Swatches>
-	</Dropdown>
-));
+	tipOffset?: number;
+	isVisible?: boolean;
+	ref: React.Ref<HTMLDivElement>;
+}> = React.forwardRef((props, ref) => {
+	return (
+		<Dropdown
+			ref={ref}
+			isVisible={props.isVisible}
+			tipOffset={props.tipOffset}
+			standAlone={true}>
+			<Swatches>
+				{colorSwatches.map(colorValue => (
+					<Swatch
+						key={colorValue}
+						isSelected={props.value === colorValue}
+						style={{backgroundColor: colorValue}}
+						onClick={(e: React.MouseEvent) => {
+							e.preventDefault();
+							props.onChange(colorValue);
+						}}
+						onMouseDown={(e: React.MouseEvent) => {
+							e.preventDefault();
+						}}
+					/>
+				))}
+			</Swatches>
+		</Dropdown>
+	);
+});
 
 export const ColorPicker: React.FunctionComponent<{
 	value: string;
 	onChange: (colorValue: string) => void;
+	propPath: string;
 }> = props => {
 	const swatchesRef = React.createRef<HTMLAnchorElement>();
-	const [withDropdown, setDropdown] = React.useState(false);
+	const wrapperRef = React.createRef<HTMLDivElement>();
+	const [pointer, setPointer] = React.useState();
+	const request = {
+		path: props.propPath,
+		value: props.value
+	};
+	useSubscribe({
+		[ColorPickerEvent.OnChange]: (event, {response}) => {
+			if (props.propPath === response.path && response.colorValue)  {
+				console.log(props.propPath, response.path);
+				props.onChange(response.colorValue);
+			}
+		}
+	});
+	useBroadcast(
+		{
+			[ColorPickerEvent.OnRequest]: {pointer, request}
+		},
+		[pointer]
+	);
 	return (
-		<ColorPickerWrapper>
+		<ColorPickerWrapper ref={wrapperRef}>
 			<ColorPickerSwatches
 				tabIndex={0}
 				transparent={props.value === "transparent"}
@@ -187,7 +222,8 @@ export const ColorPicker: React.FunctionComponent<{
 				onClick={(e: React.MouseEvent) => {
 					e.preventDefault();
 					if (e.target === swatchesRef.current) {
-						setDropdown(isOpen => !isOpen);
+						const point = getPointer(e.target as HTMLButtonElement);
+						setPointer(point);
 					}
 				}}>
 				<Icon icon="chevronDown" color={palette.white} background="rgba(0,0,0,0.5)" round />
@@ -198,25 +234,10 @@ export const ColorPicker: React.FunctionComponent<{
 					value={props.value}
 					onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 						const {value} = e.target;
-						setDropdown(false);
 						props.onChange(value);
 					}}
 				/>
 			</ColorPickerLabel>
-			<OutsideClick
-				onOutsideClick={e => {
-					if (withDropdown && e.target !== swatchesRef.current) {
-						setDropdown(false);
-					}
-				}}
-				componentProps={{
-					setDropdown,
-					onChange: props.onChange,
-					value: props.value,
-					isVisible: withDropdown
-				}}
-				component={ColorPickerDropdown}
-			/>
 		</ColorPickerWrapper>
 	);
 };

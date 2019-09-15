@@ -9,6 +9,8 @@ import {connect, Provider} from "react-redux";
 import store from "../store";
 import {moveFirst, moveLast} from "../store/slides";
 import Dekk from "../types";
+import {Router} from "react-router-static";
+import {ColorPicker} from "./color-picker";
 
 const {systemPreferences} = remote;
 
@@ -75,6 +77,24 @@ const ContextMenu = connect(
 	{moveSlotFirst: moveFirst, moveSlotLast: moveLast}
 )(ContextMenuImpl);
 
+const TestWindow = () => <React.Fragment>TestWindow</React.Fragment>;
+const Home = () => {
+	return (
+		<React.Fragment>
+			<ContextMenu />
+			<Frame />
+		</React.Fragment>
+	);
+};
+
+const Error404 = () => <div>404</div>;
+const routes = {
+	default: Error404,
+	home: Home,
+	colorpicker: ColorPicker,
+	testWindow: TestWindow
+};
+
 const App = () => {
 	const [dark, setDark] = React.useState(systemPreferences.isDarkMode());
 	React.useEffect(() => {
@@ -92,8 +112,7 @@ const App = () => {
 		<Provider store={store}>
 			<ThemeProvider theme={dark ? theme.dark : theme.light}>
 				<React.Fragment>
-					<ContextMenu />
-					<Frame />
+					<Router routes={routes} />
 				</React.Fragment>
 			</ThemeProvider>
 		</Provider>

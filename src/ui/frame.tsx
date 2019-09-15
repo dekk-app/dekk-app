@@ -1,3 +1,4 @@
+//import {remote} from "electron";
 import React from "react";
 import {connect} from "react-redux";
 import {Pane, SortablePane} from "react-sortable-pane";
@@ -21,24 +22,24 @@ import {
 	setVerticalAlignment as setSlotAlignment
 } from "../store/slots";
 import Dekk from "../types";
-import {StyledGroupedButton, StyledButton} from "./button";
+import {StyledButton, StyledGroupedButton} from "./button";
 import {EditorProvider} from "./editor";
 import {GlobalStyle} from "./global-style";
 import {
+	Box,
 	Layout,
 	Main,
 	Navigator,
 	Separator,
 	Sidebar,
+	StyledSidebarSubtitle,
 	StyledSidebarTitle,
-	View,
-	Box,
-	StyledSidebarSubtitle
+	View
 } from "./layout";
 import {SlideLink} from "./slide-thumb";
 import {ToSlide} from "./to-react";
 import {Toolbar, ToolbarButton, ToolbarFlex} from "./toolbar";
-import {PHOTO_VERTICAL, createFromMaster, createSlot, getSlotRect} from "./masters";
+import {createFromMaster, createSlot, getSlotRect, PHOTO_VERTICAL} from "./masters";
 import {TextSidebar} from "./text-sidebar";
 import {ImageSidebar} from "./image-sidebar";
 import {ColorPicker} from "./color-picker";
@@ -210,6 +211,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 								<StyledSidebarSubtitle>Background</StyledSidebarSubtitle>
 								<ColorPicker
 									value={(currentSlide as Dekk.SlideModel).format.background}
+									propPath={"currentSlide.format.background"}
 									onChange={colorValue =>
 										props.setSlideBackground(currentSlide.uuid, colorValue)
 									}

@@ -49,7 +49,7 @@ export const Toolbar: React.FunctionComponent<{title: string}> = ({children, tit
 
 export const ToolbarButton: React.FunctionComponent<{
 	disabled?: boolean;
-	onClick?: () => void;
+	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 	icon: string;
 	iconColor?: string;
 	isActive?: boolean;
