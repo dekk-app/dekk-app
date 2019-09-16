@@ -61,7 +61,7 @@ export const StyledCaption = styled.div`
 `;
 
 export const StyledCaptionRed = styled(StyledCaption)`
-	color: ${props => props.theme.palette.red[500]}
+	color: ${props => props.theme.palette.red[500]};
 `;
 
 export const StyledQuote = styled.blockquote`

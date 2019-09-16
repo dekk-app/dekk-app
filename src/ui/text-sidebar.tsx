@@ -92,7 +92,6 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 	const currentSlot = props.slots.find(slot => slot.uuid === props.currentSlot);
 	const [withDropdown, setDropdown] = React.useState(false);
 
-
 	return (
 		<Tabs
 			defaultActive={1}
@@ -107,8 +106,11 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 								<StyledSidebarSubtitle>Fill</StyledSidebarSubtitle>
 								<ColorPicker
 									value={(currentSlot as Dekk.SlotModel).format.background}
-									propPath={"format.background"}
-									onChange={(colorValue) => currentSlot &&
+									propPath={`${
+										(currentSlot as Dekk.SlotModel).uuid
+									}.format.background`}
+									onChange={colorValue =>
+										currentSlot &&
 										props.setSlotBackground(currentSlot.uuid, colorValue)
 									}
 								/>
@@ -136,7 +138,9 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 									/>
 									<ColorPicker
 										value={(currentSlot as Dekk.SlotModel).format.border.color}
-										propPath={"format.border.color"}
+										propPath={`${
+											(currentSlot as Dekk.SlotModel).uuid
+										}.format.border.color`}
 										onChange={colorValue =>
 											currentSlot &&
 											props.setSlotBorder(currentSlot.uuid, {
@@ -165,7 +169,9 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 								<StyledSidebarSubtitle>Shadow</StyledSidebarSubtitle>
 								<ColorPicker
 									value={(currentSlot as Dekk.SlotModel).format.shadow.color}
-									propPath={"format.shadow.color"}
+									propPath={`${
+										(currentSlot as Dekk.SlotModel).uuid
+									}.format.shadow.color`}
 									onChange={colorValue =>
 										currentSlot &&
 										props.setSlotShadow(currentSlot.uuid, {
@@ -268,12 +274,15 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 										const {value} = e.target;
 										if (currentSlot) {
-											props.setSlotOpacity(currentSlot.uuid, parseFloat(value));
+											props.setSlotOpacity(
+												currentSlot.uuid,
+												parseFloat(value)
+											);
 										}
 									}}
 								/>
 							</Box>
-							<Separator/>
+							<Separator />
 						</React.Fragment>
 					)
 				},
@@ -352,7 +361,9 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 								<StyledSidebarSubtitle>Color</StyledSidebarSubtitle>
 								<ColorPicker
 									value={(currentSlot as Dekk.SlotModel).format.color}
-									propPath={"format.color"}
+									propPath={`${
+										(currentSlot as Dekk.SlotModel).uuid
+									}.format.color`}
 									onChange={colorValue =>
 										currentSlot &&
 										props.setSlotColor(currentSlot.uuid, colorValue)

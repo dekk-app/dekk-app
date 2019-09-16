@@ -41,33 +41,34 @@ const StyledInputLabel = styled.label`
 	`};
 `;
 
-export const FileInput: React.FunctionComponent<{onChange: (props: {src: string; filename: string}) => void, filename?: string}> = props => {
-	const id = React.useMemo(() => uuid(), [props])
+export const FileInput: React.FunctionComponent<{
+	onChange: (props: {src: string; filename: string}) => void;
+	filename?: string;
+}> = props => {
+	const id = React.useMemo(() => uuid(), [props]);
 	const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
 			const reader = new FileReader();
 			const {files} = e.target;
 			const [file] = files;
-			reader.addEventListener("load", () =>
-				{
-					props.onChange({
-						src: reader.result as string,
-						filename: file.name as string
-					});
-				}
-			);
+			reader.addEventListener("load", () => {
+				props.onChange({
+					src: reader.result as string,
+					filename: file.name as string
+				});
+			});
 			reader.readAsDataURL(file);
 		}
 	};
 
 	return (
 		<StyledInputWrapper>
-				<dl>
-					<dt>File Info</dt>
-					<dd>{props.filename}</dd>
-				</dl>
-				<StyledInputLabel htmlFor={id}>Replace</StyledInputLabel>
-				<StyledInput onChange={onSelectFile} id={id}/>
+			<dl>
+				<dt>File Info</dt>
+				<dd>{props.filename}</dd>
+			</dl>
+			<StyledInputLabel htmlFor={id}>Replace</StyledInputLabel>
+			<StyledInput onChange={onSelectFile} id={id} />
 		</StyledInputWrapper>
 	);
 };

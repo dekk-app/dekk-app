@@ -7,22 +7,19 @@ import {ColorPickerWindow} from "../ui/color-picker";
 
 export const ColorPicker = () => {
 	const ref = React.useRef<HTMLDivElement>();
-	const [propsPath, setPropsPath] = React.useState<null|string>(null);
+	const [propsPath, setPropsPath] = React.useState<null | string>(null);
 	const [isVisible, setVisible] = React.useState(false);
-	const [colorValue, setColorValue] = React.useState<null|string>(null);
-	const [selectedColor, setSelectedColor] = React.useState<null|string>(null);
+	const [colorValue, setColorValue] = React.useState<null | string>(null);
+	const [selectedColor, setSelectedColor] = React.useState<null | string>(null);
 	const [tipOffset, setTipOffset] = React.useState(0);
 	const colorpicker = React.useMemo(() => remote.getCurrentWindow(), [setColorValue]);
 	useSubscribe(
 		{
-			[ColorPickerEvent.OnRequest]: (event, {pointer, request}) => {
-				if (!ref.current) {
-					return;
-				}
-				if (ref.current) {
-					setPropsPath(request.path);
-					setSelectedColor(request.value);
-					const {clientX, clientY} = pointer as {clientX: number; clientY: number};
+			[ColorPickerEvent.OnRequest]: (event, {pointer, request: {path, value}}) => {
+				if (ref.current && path && value && pointer) {
+					setPropsPath(path);
+					setSelectedColor(value);
+					const {clientX, clientY} = pointer;
 					const parent = colorpicker.getParentWindow();
 					const [parentX, parentY] = parent.getPosition();
 					const {size} = remote.screen.getPrimaryDisplay();
@@ -59,7 +56,12 @@ export const ColorPicker = () => {
 					colorpicker.show();
 					setVisible(true);
 				}
-			},
+			}
+		},
+		[ref, setPropsPath, setVisible, setSelectedColor]
+	);
+	useSubscribe(
+		{
 			[ColorPickerEvent.OnClose]: () => {
 				setVisible(false);
 				setPropsPath(null);
@@ -75,21 +77,21 @@ export const ColorPicker = () => {
 		{
 			[ColorPickerEvent.OnChange]: {response: {colorValue, path: propsPath}}
 		},
-		[colorValue, propsPath]
+		[colorValue]
 	);
 
 	const handleChange = React.useCallback(
 		value => {
 			setColorValue(value);
-			setVisible(false);
 			colorpicker.hide();
 			colorpicker.once("hide", () => {
+				setVisible(false);
 				setPropsPath(null);
 				setColorValue(null);
 				setSelectedColor(null);
-			})
+			});
 		},
-		[setColorValue, setVisible, setSelectedColor]
+		[setColorValue, setVisible, setSelectedColor, setPropsPath]
 	);
 	return (
 		<React.Fragment>

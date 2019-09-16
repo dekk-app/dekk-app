@@ -15,8 +15,8 @@ const SET_VERTICAL_ALIGNMENT = "slots:SET_VERTICAL_ALIGNMENT";
 const SET_BACKGROUND = "slots:SET_BACKGROUND";
 const SET_BORDER = "slots:SET_BORDER";
 const SET_SHADOW = "slots:SET_SHADOW";
-const SET_COLOR= "slots:SET_COLOR";
-const SET_OPACITY= "slots:SET_OPACITY";
+const SET_COLOR = "slots:SET_COLOR";
+const SET_OPACITY = "slots:SET_OPACITY";
 
 const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel}> = (
 	state = [],
@@ -27,47 +27,61 @@ const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel}> =
 		case ADD:
 			return update(state, {$push: [data as Dekk.SlotModel]});
 		case SET_VALUE:
-			return update(state, {[slotIndex]:
-					{value: {
-							$set: data.value
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					value: {
+						$set: data.value
+					}
+				}
+			});
 		case SET_TYPE:
-			return update(state, {[slotIndex]:
-					{type: {
-							$set: data.type
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					type: {
+						$set: data.type
+					}
+				}
+			});
 		case SET_PROPS:
-			return update(state, {[slotIndex]:
-					{props: {
-							$set: data.props
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					props: {
+						$set: data.props
+					}
+				}
+			});
 		case SET_SIZE:
-			return update(state, {[slotIndex]:
-					{size: {
-							$set: data.size
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					size: {
+						$set: data.size
+					}
+				}
+			});
 		case SET_VERTICAL_ALIGNMENT:
-			return update(state, {[slotIndex]:
-					{verticalAlignment: {
-							$set: data.verticalAlignment
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					verticalAlignment: {
+						$set: data.verticalAlignment
+					}
+				}
+			});
 		case SET_POSITION:
-			return update(state, {[slotIndex]:
-					{position: {
-							$set: data.position
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					position: {
+						$set: data.position
+					}
+				}
+			});
 		case SET_ROTATION:
-			return update(state, {[slotIndex]:
-					{rotation: {
-							$set: data.rotation
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					rotation: {
+						$set: data.rotation
+					}
+				}
+			});
 		case SET_BACKGROUND:
 			return update(state, {
 				[slotIndex]: {
@@ -105,17 +119,21 @@ const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel}> =
 				}
 			});
 		case SET_COLOR:
-			return update(state, {[slotIndex]:
-					{format: {
-							$merge: (data.format as Dekk.SlotFormat)
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					format: {
+						$merge: data.format as Dekk.SlotFormat
+					}
+				}
+			});
 		case SET_EDITOR_STATE:
-			return update(state, {[slotIndex]:
-					{editorState: {
-							$set: data.editorState
-						}
-					}});
+			return update(state, {
+				[slotIndex]: {
+					editorState: {
+						$set: data.editorState
+					}
+				}
+			});
 		case REMOVE:
 			return update(state, {
 				$splice: [[slotIndex, 1]]
@@ -154,7 +172,10 @@ export const setProps = (uuid: Dekk.UUID, props: Dekk.SlotProps) => ({
 	data: {uuid, props}
 });
 
-export const setVerticalAlignment = (uuid: Dekk.UUID, verticalAlignment: Dekk.VerticalAlignment) => ({
+export const setVerticalAlignment = (
+	uuid: Dekk.UUID,
+	verticalAlignment: Dekk.VerticalAlignment
+) => ({
 	type: SET_VERTICAL_ALIGNMENT,
 	data: {uuid, verticalAlignment}
 });

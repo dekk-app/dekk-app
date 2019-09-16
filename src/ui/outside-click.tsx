@@ -1,6 +1,9 @@
 import React from "react";
 
-const useOutsideClick = (ref: React.RefObject<any>, cb: (isOutside: boolean, event: MouseEvent) => void) => {
+const useOutsideClick = (
+	ref: React.RefObject<any>,
+	cb: (isOutside: boolean, event: MouseEvent) => void
+) => {
 	const handleClick = (event: MouseEvent) =>
 		cb(ref.current && !ref.current.contains(event.target), event);
 
@@ -16,7 +19,7 @@ export const OutsideClick: React.FunctionComponent<{
 	componentProps: {[key: string]: any};
 	component: React.ForwardRefExoticComponent<any>;
 	onInsideClick?: (e: MouseEvent) => void;
-	onOutsideClick?: (e:MouseEvent) => void;
+	onOutsideClick?: (e: MouseEvent) => void;
 }> = props => {
 	const ref = React.useRef(null);
 	const cb = (isOutside: boolean, e: MouseEvent) => {
@@ -28,5 +31,9 @@ export const OutsideClick: React.FunctionComponent<{
 	};
 	useOutsideClick(ref, cb);
 
-	return <props.component ref={ref} {...props.componentProps}>{props.children}</props.component>;
+	return (
+		<props.component ref={ref} {...props.componentProps}>
+			{props.children}
+		</props.component>
+	);
 };

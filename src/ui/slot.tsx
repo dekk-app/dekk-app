@@ -3,11 +3,13 @@ import styled, {css} from "styled-components";
 
 export const Slot = styled(Rnd)`
 	overflow: visible;
-	${props => !props.disableDragging && css`
-		* {
-			user-select: none;
-		}
-	`};
+	${props =>
+		!props.disableDragging &&
+		css`
+			* {
+				user-select: none;
+			}
+		`};
 	span:last-child {
 		div::before {
 				content: "";
@@ -23,4 +25,3 @@ export const Slot = styled(Rnd)`
 		}
 	}
 `;
-

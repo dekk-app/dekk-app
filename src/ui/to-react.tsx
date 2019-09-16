@@ -130,23 +130,31 @@ const snapToGuides = (
 	return [];
 };
 
-//const snapToBounds = (
-//	b: BoundingBox,
-//	bounds: {left: number; top: number, bottom: number; right: number}
-//): Partial<Dekk.Snap> => {
-//	const snap: Partial<Dekk.Snap> = {};
-//	if (b.position.x - b.size.width / 2 <= bounds.left) {
-//		snap.x = bounds.left - b.size.width / 2;
-//	} else if (b.position.x + b.size.width / 2 >= bounds.right) {
-//		snap.x = bounds.right - b.size.width / 2;
-//	}
-//	if (b.position.y - b.size.height / 2 <=  bounds.top) {
-//		snap.x = bounds.top - b.size.height / 2;
-//	} else if (b.position.y + b.size.height / 2 >= bounds.bottom) {
-//		snap.x = bounds.bottom - b.size.height / 2;
-//	}
-//	return snap;
-//};
+// const snapToBounds = (
+// 	b: BoundingBox,
+// 	bounds: {left: number; top: number; bottom: number; right: number}
+// ): Partial<Dekk.Snap> => {
+// 	const snap: Partial<Dekk.Snap> = {};
+// 	if (b.position.x - b.size.width / 2 <= bounds.left) {
+// 		snap.x = bounds.left + b.size.width / 2;
+// 		snap.x1 = 0;
+// 		snap.x2 = 0;
+// 	} else if (b.position.x + b.size.width / 2 >= bounds.right) {
+// 		snap.x = bounds.right - b.size.width / 2;
+// 		snap.x1 = 0;
+// 		snap.x2 = 0;
+// 	}
+// 	if (b.position.y - b.size.height / 2 <= bounds.top) {
+// 		snap.y = bounds.top + b.size.height / 2;
+// 		snap.y1 = 0;
+// 		snap.y2 = 0;
+// 	} else if (b.position.y + b.size.height / 2 >= bounds.bottom) {
+// 		snap.y = bounds.bottom - b.size.height / 2;
+// 		snap.y1 = 0;
+// 		snap.y2 = 0;
+// 	}
+// 	return snap;
+// };
 
 const snapToSiblings = (
 	b: BoundingBox,
@@ -157,10 +165,14 @@ const snapToSiblings = (
 	const centeredX = b.position.x;
 	const centeredY = b.position.y;
 	const matchesX = siblings.filter(({position}) => inRange(centeredX, position.x, threshold));
+	const matchesY = siblings.filter(({position}) => inRange(centeredY, position.y, threshold));
 	const snapV: Partial<Dekk.Snap> = {uuid: uuid()};
 	const snapH: Partial<Dekk.Snap> = {uuid: uuid()};
 
-	const preSnap: Partial<Dekk.Snap> = previousSnap.reduce((current, next) => ({...current, ...next}), {});
+	const preSnap: Partial<Dekk.Snap> = previousSnap.reduce(
+		(current, next) => ({...current, ...next}),
+		{}
+	);
 
 	if (matchesX.length) {
 		const [firstMatch] = matchesX;
@@ -169,12 +181,11 @@ const snapToSiblings = (
 		snapH.x2 = firstMatch.position.x;
 		snapH.y1 = firstMatch.position.y + (firstMatch.size.height as number) / (before ? 2 : -2);
 		snapH.y2 =
-			(preSnap.y2 ||
-			b.position.y) +
-			b.size.height / (before ? -2 : 2);
+			preSnap.y2 === undefined
+				? b.position.y + b.size.height / (before ? -2 : 2)
+				: preSnap.y2;
 		snapH.x = firstMatch.position.x;
 	}
-	const matchesY = siblings.filter(({position}) => inRange(centeredY, position.y, threshold));
 	if (matchesY.length) {
 		const [firstMatch] = matchesY;
 		const before = b.position.x < firstMatch.position.x;
@@ -182,9 +193,7 @@ const snapToSiblings = (
 		snapV.y2 = firstMatch.position.y;
 		snapV.x1 = firstMatch.position.x + (firstMatch.size.width as number) / (before ? 2 : -2);
 		snapV.x2 =
-			(preSnap.x2 ||
-			b.position.x) +
-			b.size.width / (before ? -2 : 2);
+			preSnap.x2 === undefined ? b.position.x + b.size.width / (before ? -2 : 2) : preSnap.x2;
 		snapV.y = firstMatch.position.y;
 	}
 	return [snapV, snapH].filter(({x, y}) => x !== undefined || y !== undefined);
@@ -230,6 +239,7 @@ const ToSlotImpl = ({
 						const snap: Partial<Dekk.Snap>[] = [
 							...snapToGuides(b, slideRef as React.RefObject<HTMLDivElement>)
 						];
+
 						snap.push(
 							...snapToSiblings(
 								b,
@@ -238,25 +248,36 @@ const ToSlotImpl = ({
 								),
 								snap
 							)
+							//snapToBounds(b, {left: 0, top: 0, bottom:800, right: 1200})
 						);
-						const reduced = snap.reduce((currentValue: Partial<Dekk.Snap>[], nextValue: Partial<Dekk.Snap>): Partial<Dekk.Snap>[] => {
-							const {x1, x2, y1, y2} = nextValue;
-							if (x1 !== undefined && x1 == x2) {
-								const similar = currentValue.findIndex((item) => item.y1 === 0 && item.y2 === 800);
-								if (similar > -1) {
-									currentValue.splice(similar, 1);
-								}
-							}
-							if (y1 !== undefined && y1 == y2) {
-								const similar = currentValue.findIndex((item) => item.x1 === 0 && item.x2 === 1200);
-								if (similar > -1) {
-									currentValue.splice(similar, 1);
-								}
-							}
-							return [...currentValue, nextValue];
-						}, []);
-						setGuides && setGuides(reduced);
-						return reduced.reduce((prev, next) => ({...prev, ...next}), {});
+						// const reduced = snap.reduce(
+						// 	(
+						// 		currentValue: Partial<Dekk.Snap>[],
+						// 		nextValue: Partial<Dekk.Snap>
+						// 	): Partial<Dekk.Snap>[] => {
+						// 		const {x1, x2, y1, y2} = nextValue;
+						// 		if (x1 !== undefined && x1 === x2) {
+						// 			const similar = currentValue.findIndex(
+						// 				item => item.y1 === 0 && item.y2 === 800
+						// 			);
+						// 			if (similar > -1) {
+						// 				//currentValue.splice(similar, 1);
+						// 			}
+						// 		}
+						// 		if (y1 !== undefined && y1 === y2) {
+						// 			const similar = currentValue.findIndex(
+						// 				item => item.x1 === 0 && item.x2 === 1200
+						// 			);
+						// 			if (similar > -1) {
+						// 				//currentValue.splice(similar, 1);
+						// 			}
+						// 		}
+						// 		return [...currentValue, nextValue];
+						// 	},
+						// 	[]
+						// );
+						setGuides && setGuides(snap);
+						return snap.reduce((prev, next) => ({...prev, ...next}), {});
 					}}
 					size={slot.size}
 					position={slot.position}

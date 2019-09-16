@@ -103,8 +103,9 @@ const StyledView = styled.div<{zoomLevel: number}>`
 		height: ${props.zoomLevel * 800}px;
 	`}
 `;
-export const View: React.FunctionComponent<{zoomLevel: number}> = ({children, zoomLevel}) => <StyledView zoomLevel={zoomLevel}>{children}</StyledView>;
-
+export const View: React.FunctionComponent<{zoomLevel: number}> = ({children, zoomLevel}) => (
+	<StyledView zoomLevel={zoomLevel}>{children}</StyledView>
+);
 
 const StyledLayout = styled.div<{sidebarLeft?: boolean; sidebarRight?: boolean}>`
 	height: 100vh;

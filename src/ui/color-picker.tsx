@@ -4,11 +4,7 @@ import React from "react";
 import {Dropdown} from "./dropdown";
 import {Icon, StyledSvg} from "./icon";
 import {getPointer} from "./window-utils";
-import {
-	ColorPickerEvent,
-	useBroadcast,
-	useSubscribe
-} from "./broadcast";
+import {ColorPickerEvent, useBroadcast, useSubscribe} from "./broadcast";
 
 const colorSwatches = [
 	palette.indigo[300],
@@ -190,25 +186,29 @@ export const ColorPicker: React.FunctionComponent<{
 	value: string;
 	onChange: (colorValue: string) => void;
 	propPath: string;
-}> = props => {
+}> = ({propPath, value, ...props}) => {
 	const swatchesRef = React.createRef<HTMLAnchorElement>();
 	const wrapperRef = React.createRef<HTMLDivElement>();
 	const [pointer, setPointer] = React.useState();
-	const request = {
-		path: props.propPath,
-		value: props.value
-	};
-	useSubscribe({
-		[ColorPickerEvent.OnChange]: (event, {response}) => {
-			if (props.propPath === response.path && response.colorValue)  {
-				console.log(props.propPath, response.path);
-				props.onChange(response.colorValue);
+	useSubscribe(
+		{
+			[ColorPickerEvent.OnChange]: (event, {response}) => {
+				if (propPath && propPath === response.path && response.colorValue) {
+					props.onChange(response.colorValue);
+				}
 			}
-		}
-	});
+		},
+		[propPath]
+	);
 	useBroadcast(
 		{
-			[ColorPickerEvent.OnRequest]: {pointer, request}
+			[ColorPickerEvent.OnRequest]: {
+				pointer,
+				request: {
+					path: propPath,
+					value: value
+				}
+			}
 		},
 		[pointer]
 	);
@@ -216,14 +216,13 @@ export const ColorPicker: React.FunctionComponent<{
 		<ColorPickerWrapper ref={wrapperRef}>
 			<ColorPickerSwatches
 				tabIndex={0}
-				transparent={props.value === "transparent"}
-				style={{backgroundColor: props.value}}
+				transparent={value === "transparent"}
+				style={{backgroundColor: value}}
 				ref={swatchesRef as React.Ref<HTMLAnchorElement>}
 				onClick={(e: React.MouseEvent) => {
 					e.preventDefault();
 					if (e.target === swatchesRef.current) {
-						const point = getPointer(e.target as HTMLButtonElement);
-						setPointer(point);
+						setPointer(getPointer(e.target as HTMLButtonElement));
 					}
 				}}>
 				<Icon icon="chevronDown" color={palette.white} background="rgba(0,0,0,0.5)" round />
@@ -231,11 +230,10 @@ export const ColorPicker: React.FunctionComponent<{
 			<ColorPickerLabel>
 				<Icon icon="circle" color="url(#rainbowSwirl)" />
 				<ColorPickerInput
-					value={props.value}
-					onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-						const {value} = e.target;
-						props.onChange(value);
-					}}
+					value={value}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+						props.onChange(e.target.value)
+					}
 				/>
 			</ColorPickerLabel>
 		</ColorPickerWrapper>

@@ -9,14 +9,14 @@ export const Select: React.FunctionComponent<{
 	options: {value: string; label: string}[];
 }> = ({children, onChange, name, options, value}) => (
 	<SelectWrapper>
-	<StyledSelect onChange={onChange} name={name} value={value}>
-		{options.map(option => (
-			<option key={option.value} value={option.value}>
-				{option.label}
-			</option>
-		))}
-	</StyledSelect>
-	<DropdownIcon/>
+		<StyledSelect onChange={onChange} name={name} value={value}>
+			{options.map(option => (
+				<option key={option.value} value={option.value}>
+					{option.label}
+				</option>
+			))}
+		</StyledSelect>
+		<DropdownIcon />
 	</SelectWrapper>
 );
 
@@ -35,7 +35,6 @@ const DropdownIcon = styled(Icon).attrs({
 	transform: translateY(-50%);
 	pointer-events: none;
 	border-radius: 0 5px 5px 0;
-
 
 	${({theme}) => css`
 		color: ${theme.input.color};

@@ -48,7 +48,7 @@ const StyledRangeWrapper = styled.div`
 	position: relative;
 	display: flex;
 	width: calc(100% - 8px);
-		height: 24px;
+	height: 24px;
 
 	margin-right: 8px;
 `;
@@ -225,8 +225,7 @@ export const StyledGroupedInput = styled.div`
 		border-radius: 0;
 		${({theme}) => css`
 			box-shadow: inset 0 -1px 0 ${theme.input.borderColor1},
-				inset 0 1px 0 ${theme.input.borderColor2},
-				inset 1px 0 0 ${theme.input.borderColor2};
+				inset 0 1px 0 ${theme.input.borderColor2}, inset 1px 0 0 ${theme.input.borderColor2};
 		`};
 	}
 `;

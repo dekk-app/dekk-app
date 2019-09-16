@@ -15,7 +15,6 @@ import png_seRotate2x from "./images/se-rotate@2x.png";
 import png_swRotate1x from "./images/sw-rotate.png";
 import png_swRotate2x from "./images/sw-rotate@2x.png";
 
-
 export const resizeCursors = [
 	"row-resize",
 	"nesw-resize",

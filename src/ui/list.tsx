@@ -7,7 +7,6 @@ export const StyledList = styled.ul`
 	list-style: none;
 `;
 
-
 export const StyledListItem = styled.li`
 	margin: 0;
 	padding: 0;

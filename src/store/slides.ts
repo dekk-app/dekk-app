@@ -31,25 +31,25 @@ const reducer: Reducer<
 		case DISCHARGE:
 			return update(state, {
 				[slideIndex]: {
-					slots: {$splice:[[slotIndex, 1]]}
+					slots: {$splice: [[slotIndex, 1]]}
 				}
 			});
 		case MOVE_LAST:
 			return update(state, {
 				[slideIndex]: {
-					slots: {$splice:[[slotIndex, 1]], $unshift: [data.slotId as Dekk.UUID]}
+					slots: {$splice: [[slotIndex, 1]], $unshift: [data.slotId as Dekk.UUID]}
 				}
 			});
 		case MOVE_FORWARD:
 			return update(state, {
 				[slideIndex]: {
-					slots: {$splice:[[slotIndex, 1], [slotIndex + 1, 0, data.slotId as Dekk.UUID]]}
+					slots: {$splice: [[slotIndex, 1], [slotIndex + 1, 0, data.slotId as Dekk.UUID]]}
 				}
 			});
 		case MOVE_BACKWARD:
 			return update(state, {
 				[slideIndex]: {
-					slots: {$splice:[[slotIndex, 1], [slotIndex - 1, 0, data.slotId as Dekk.UUID]]}
+					slots: {$splice: [[slotIndex, 1], [slotIndex - 1, 0, data.slotId as Dekk.UUID]]}
 				}
 			});
 		case MOVE_FIRST:
@@ -109,6 +109,5 @@ export const setBackground = (uuid: Dekk.UUID, background: string) => ({
 	type: SET_BACKGROUND,
 	data: {format: {background}, uuid}
 });
-
 
 export default reducer;

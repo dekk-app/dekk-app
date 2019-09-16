@@ -11,8 +11,8 @@ export const coordinatesToDeg = (position: PositionModel, center: PositionModel)
 	return to360((Math.atan2(y, x) * 180) / Math.PI);
 };
 
-export const degToRad = (deg: number): number => deg * Math.PI / 180;
-export const radToDeg = (rad: number): number => rad * 180 / Math.PI;
+export const degToRad = (deg: number): number => (deg * Math.PI) / 180;
+export const radToDeg = (rad: number): number => (rad * 180) / Math.PI;
 export const getHypotenuse = (opposite: number, adjacent: number): number =>
 	Math.sqrt(opposite * opposite + adjacent * adjacent);
 

@@ -323,24 +323,36 @@ const theme = {
 			background1: palette.grey[600],
 			background2: palette.grey[700],
 			backgroundActive: palette.indigo.a700,
-			borderColor1: Color(palette.white).alpha(0.1).string(),
-			borderColor2: Color(palette.black).alpha(0.1).string(),
+			borderColor1: Color(palette.white)
+				.alpha(0.1)
+				.string(),
+			borderColor2: Color(palette.black)
+				.alpha(0.1)
+				.string()
 		},
 		input: {
 			color: palette.white,
 			background1: palette.grey[700],
 			background2: palette.grey[600],
 			backgroundActive: palette.indigo.a700,
-			borderColor1: Color(palette.white).alpha(0.1).string(),
-			borderColor2: Color(palette.black).alpha(0.1).string(),
+			borderColor1: Color(palette.white)
+				.alpha(0.1)
+				.string(),
+			borderColor2: Color(palette.black)
+				.alpha(0.1)
+				.string()
 		},
 		rangeInput: {
 			color: palette.black,
 			background1: palette.grey[700],
 			background2: palette.grey[200],
 			backgroundActive: palette.indigo.a700,
-			borderColor1: Color(palette.white).alpha(0.1).string(),
-			borderColor2: Color(palette.black).alpha(0.1).string(),
+			borderColor1: Color(palette.white)
+				.alpha(0.1)
+				.string(),
+			borderColor2: Color(palette.black)
+				.alpha(0.1)
+				.string()
 		},
 		toolbar: {
 			borderColor: palette.black,
@@ -349,7 +361,9 @@ const theme = {
 			background2: palette.grey[900]
 		},
 		tabs: {
-			borderColor: Color(palette.grey[200]).alpha(0.1).string(),
+			borderColor: Color(palette.grey[200])
+				.alpha(0.1)
+				.string(),
 			color: palette.grey[200],
 			background: palette.grey[800],
 			backgroundActive: palette.indigo.a700
@@ -402,14 +416,18 @@ const theme = {
 			background1: palette.grey[100],
 			background2: palette.grey[200],
 			borderColor1: palette.grey[50],
-			borderColor2: palette.grey[500],
+			borderColor2: palette.grey[500]
 		},
 		input: {
 			color: palette.black,
 			background1: palette.white,
 			background2: palette.grey[600],
-			borderColor1: Color(palette.white).alpha(0.1).string(),
-			borderColor2: Color(palette.black).alpha(0.1).string(),
+			borderColor1: Color(palette.white)
+				.alpha(0.1)
+				.string(),
+			borderColor2: Color(palette.black)
+				.alpha(0.1)
+				.string()
 		},
 		toolbar: {
 			borderColor: palette.grey[500],

@@ -41,7 +41,7 @@ export const EditorProvider: React.FunctionComponent<any> = props => {
 
 export const blockStyleFn = (contentBlock: Draft.ContentBlock): string => {
 	const type = contentBlock.getType() as string;
-	switch(type) {
+	switch (type) {
 		case "text-align-left":
 			return "textAlignLeft";
 		case "text-align-right":

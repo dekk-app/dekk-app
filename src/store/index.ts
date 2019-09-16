@@ -1,9 +1,8 @@
-import {createStore, combineReducers} from 'redux'
-import currentSlide from './current-slide'
-import currentSlot from './current-slot'
-import slides from './slides'
-import slots from './slots'
-
+import {createStore, combineReducers} from "redux";
+import currentSlide from "./current-slide";
+import currentSlot from "./current-slot";
+import slides from "./slides";
+import slots from "./slots";
 
 const store = createStore(
 	combineReducers({
@@ -14,4 +13,4 @@ const store = createStore(
 	})
 );
 
-export default store
+export default store;

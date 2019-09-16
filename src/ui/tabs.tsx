@@ -10,7 +10,8 @@ const StyledTab = styled.a<{isActive?: boolean}>`
 	padding: 5px 10px;
 	font-size: 12px;
 	text-decoration: none;
-	background: ${props => props.isActive ? props.theme.tabs.backgroundActive : props.theme.tabs.background};
+	background: ${props =>
+		props.isActive ? props.theme.tabs.backgroundActive : props.theme.tabs.background};
 	color: ${props => props.theme.tabs.color};
 	box-shadow: inset 0 0 0 0.5px ${props => props.theme.tabs.borderColor};
 `;
@@ -74,7 +75,11 @@ export const Tabs: React.FunctionComponent<TabsProps> = props => {
 		<StyledTabs>
 			<StyledTabsHeader>
 				{tabs.map(({uuid, label, setActive}, index) => (
-					<StyledTab key={uuid} href={`#${index}`} onClick={setActive} isActive={index == activeTab}>
+					<StyledTab
+						key={uuid}
+						href={`#${index}`}
+						onClick={setActive}
+						isActive={index == activeTab}>
 						{label}
 					</StyledTab>
 				))}

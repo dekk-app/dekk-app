@@ -211,7 +211,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 								<StyledSidebarSubtitle>Background</StyledSidebarSubtitle>
 								<ColorPicker
 									value={(currentSlide as Dekk.SlideModel).format.background}
-									propPath={"currentSlide.format.background"}
+									propPath={`${currentSlide.uuid}.currentSlide.format.background`}
 									onChange={colorValue =>
 										props.setSlideBackground(currentSlide.uuid, colorValue)
 									}

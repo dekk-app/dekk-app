@@ -3,12 +3,12 @@ import {v4 as uuid} from "uuid";
 import {StyledHeadline, StyledImage, StyledSubHeadline} from "../elements";
 import Dekk from "../types";
 import {palette} from "../theme";
-import {getRandomPhoto} from "./unsplash";
+// import {getRandomPhoto} from "./unsplash";
 
 export const getSlotRect = (
 	height: number,
 	width?: number
-): {size: Dekk.Size; position: Dekk.Position, rotation: Dekk.Rotation} => {
+): {size: Dekk.Size; position: Dekk.Position; rotation: Dekk.Rotation} => {
 	const widthOrHeight = width === undefined ? height : width;
 	return {
 		rotation: {x: 0, y: 0, z: 0},
@@ -171,10 +171,10 @@ const MASTERS: {[key: string]: masterFn} = {
 				z: 0
 			}
 		});
-		const photo = await getRandomPhoto({
-			width: 500,
-			height: 700
-		});
+		// const photo = await getRandomPhoto({
+		// 	width: 500,
+		// 	height: 700
+		// });
 		const image = createImageSlot({
 			verticalAlignment: "top",
 			size: {
@@ -191,8 +191,8 @@ const MASTERS: {[key: string]: masterFn} = {
 				z: 0
 			},
 			props: {
-				src: photo.urls.regular,
-				alt: photo.alt_description,
+				src: "https://placehold.it/1000x1400",
+				alt: "placeholder",
 				filename: "1000x1400.jpg"
 			}
 		});

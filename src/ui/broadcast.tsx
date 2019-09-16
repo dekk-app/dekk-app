@@ -12,7 +12,7 @@ export type ColorPickerEventHandler<T> = (event: IpcRendererEvent, data: T) => v
 export interface ColorPickerResponse {
 	path: null | string;
 	colorValue: null | string;
-};
+}
 
 export interface ColorPickerPointer {
 	clientX: number;
@@ -60,15 +60,13 @@ export interface SubscribeProps {
 
 export const useBroadcast = (eventsWithData: EventsWithData, dependencies: any[] = []) => {
 	React.useEffect(() => {
-		Object.entries(eventsWithData).forEach(
-			([event, data]) => {
+		if (dependencies.filter(Boolean).length) {
+			Object.entries(eventsWithData).forEach(([event, data]) => {
 				ipcRenderer.send(event, data);
-			},
-			[eventsWithData]
-		);
+			});
+		}
 	}, [...dependencies]);
 };
-
 
 export const useSubscribe = (eventListeners: EventListeners, dependencies: any[] = []) => {
 	React.useEffect(() => {

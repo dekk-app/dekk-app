@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu, shell, ipcMain} from "electron";
+import {app, BrowserWindow, ipcMain} from "electron";
 import * as path from "path";
 import {format as formatUrl} from "url";
 import {disableZoom} from "electron-util";
@@ -9,7 +9,7 @@ const ColorPickerEvents = {
 	OnChange: "on-colorpicker-change",
 	OnClose: "on-colorpicker-close",
 	OnOpen: "on-colorpicker-open"
-}
+};
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow: BrowserWindow | null;
@@ -19,23 +19,23 @@ const webPreferences = isDevelopment
 			nodeIntegration: true
 	  }
 	: {
-			nodeIntegration: true,
-			devTools: false
+			nodeIntegration: true
+			//devTools: false
 	  };
 
-const template = [
-	{
-		role: "help",
-		submenu: [
-			{
-				label: "Learn More",
-				click: async () => {
-					await shell.openExternal("https://github.com/dekk-app/dekk");
-				}
-			}
-		]
-	}
-];
+// const template = [
+// 	{
+// 		role: "help",
+// 		submenu: [
+// 			{
+// 				label: "Learn More",
+// 				click: async () => {
+// 					await shell.openExternal("https://github.com/dekk-app/dekk");
+// 				}
+// 			}
+// 		]
+// 	}
+// ];
 
 function createMainWindow() {
 	const window = new BrowserWindow({
@@ -44,8 +44,8 @@ function createMainWindow() {
 		movable: true,
 		x: 600,
 		y: 100,
-		width: 1200,
-		height: 800,
+		width: 1800,
+		height: 1000,
 		minWidth: 1200,
 		minHeight: 600,
 		icon: path.join(process.cwd(), "build/icon.png")
@@ -70,59 +70,33 @@ function createMainWindow() {
 		parent: window
 	});
 
-	//const testWindow = new BrowserWindow({
-	//	webPreferences,
-	//	width: 400,
-	//	height: 300,
-	//});
-
 	disableZoom(window);
 
 	if (isDevelopment) {
 		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?route=home`);
-		popover.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?route=colorpicker`);
-		//testWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?route=testWindow`);
-		popover.hide();
-		// transparency clicks!
-		popover.setIgnoreMouseEvents(true, {forward: true});
-		//ipcMain.on("open-popover", (event, {clientX, clientY}) => {
-			// const {size} = screen.getPrimaryDisplay();
-			// const [x, y] = window.getPosition();
-			// const {height, width} = size;
-			// const maxLeft = width - 220;
-			// const maxTop = height - 150;
-			// popover.setPosition(Math.min(maxLeft, clientX + x), Math.min(maxTop, clientY + y));
-			//popover.show();
-		//});
-
-		const events: string[] = Object.values(ColorPickerEvents);
-
-		events.forEach(eventName => {
-			ipcMain.on(eventName, (event, data) => {
-				if (eventName === ColorPickerEvents.OnRequest) {
-					popover.webContents.send(eventName, data);
-					// popover.show();
-				} else if (eventName === ColorPickerEvents.OnChange) {
-					window.webContents.send(eventName, data);
-				}
-			});
-		});
-
-		window.on("focus", () => {
-			popover.webContents.send(ColorPickerEvents.OnClose, {});
-		});
-
+		popover.loadURL(
+			`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?route=colorpicker`
+		);
 	} else {
 		window.loadURL(
 			formatUrl({
 				pathname: path.join(__dirname, "index.html"),
 				protocol: "file",
-				slashes: true
+				slashes: true,
+				query: {route: "home"}
+			})
+		);
+		popover.loadURL(
+			formatUrl({
+				pathname: path.join(__dirname, "index.html"),
+				protocol: "file",
+				slashes: true,
+				query: {route: "colorpicker"}
 			})
 		);
 		// @ts-ignore
-		const menu = Menu.buildFromTemplate(template);
-		Menu.setApplicationMenu(menu);
+		//const menu = Menu.buildFromTemplate(template);
+		//Menu.setApplicationMenu(menu);
 	}
 
 	window.on("closed", () => {
@@ -134,6 +108,25 @@ function createMainWindow() {
 		setImmediate(() => {
 			window.focus();
 		});
+	});
+	popover.hide();
+	// transparency clicks!
+	popover.setIgnoreMouseEvents(true, {forward: true});
+	const events: string[] = Object.values(ColorPickerEvents);
+
+	events.forEach(eventName => {
+		ipcMain.on(eventName, (event, data) => {
+			if (eventName === ColorPickerEvents.OnRequest) {
+				popover.webContents.send(eventName, data);
+				// popover.show();
+			} else if (eventName === ColorPickerEvents.OnChange) {
+				window.webContents.send(eventName, data);
+			}
+		});
+	});
+
+	window.on("focus", () => {
+		popover.webContents.send(ColorPickerEvents.OnClose, {});
 	});
 
 	return window;

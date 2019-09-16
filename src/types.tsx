@@ -3,7 +3,7 @@ import Draft from "draft-js";
 
 namespace Dekk {
 	export type UUID = string;
-	export type BorderStyle =  "none" | "dashed" | "dotted" | "solid";
+	export type BorderStyle = "none" | "dashed" | "dotted" | "solid";
 	export interface Border {
 		enabled?: boolean;
 		style: BorderStyle;
@@ -13,9 +13,9 @@ namespace Dekk {
 	export interface Shadow {
 		enabled?: boolean;
 		offset: {
-			x: number,
-			y: number,
-		},
+			x: number;
+			y: number;
+		};
 		blur: number;
 		spread: number;
 		color: string;
@@ -113,7 +113,7 @@ namespace Dekk {
 		setEditorState: (uuid: UUID, editorState: any) => void;
 	}
 
-	export interface ToSlotState{
+	export interface ToSlotState {
 		slots: SlotModel[];
 		currentSlot: UUID;
 		slides: SlideModel[];

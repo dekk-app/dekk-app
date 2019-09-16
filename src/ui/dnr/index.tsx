@@ -1,12 +1,6 @@
 import React from "react";
 import {DnrProps, PositionModel, RotationModel, SizeModel, SnapHandler} from "./types";
-import {
-	coordinatesToDeg,
-	to360,
-	withAlt,
-	withAspectRatio,
-	withRotation
-} from "./utils";
+import {coordinatesToDeg, to360, withAlt, withAspectRatio, withRotation} from "./utils";
 import {resizeCursors, rotationClasses} from "./cursors";
 import {
 	useHandle,
@@ -91,7 +85,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 					: state.width
 			};
 		},
-		handlePosition: ({x, y}: PositionModel, altKey: boolean, shiftKey: boolean) => state => {
+		handlePosition: ({x, y}: PositionModel, altKey: boolean) => () => {
 			const d = withRotation(0, y, rotation.z);
 			return {
 				x: initialPosition.x - (altKey ? 0 : d.x / 2),
@@ -116,9 +110,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 				? withAspectRatio(initialSize.width + withAlt(x, altKey), initialSize, true)
 				: state.height
 		}),
-		handlePosition: ({x, y}: PositionModel, altKey: boolean, shiftKey: boolean) => (
-			state: PositionModel
-		) => {
+		handlePosition: ({x, y}: PositionModel, altKey: boolean) => () => {
 			const d = withRotation(x, 0, rotation.z);
 			return {
 				x: initialPosition.x + (altKey ? 0 : d.x / 2),
@@ -141,7 +133,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 				? withAspectRatio(initialSize.height + withAlt(y, altKey), initialSize)
 				: state.width
 		}),
-		handlePosition: ({x, y}: PositionModel, altKey: boolean, shiftKey: boolean) => state => {
+		handlePosition: ({x, y}: PositionModel, altKey: boolean) => () => {
 			const d = withRotation(0, y, rotation.z);
 			return {
 				x: initialPosition.x - (altKey ? 0 : d.x / 2),
@@ -164,7 +156,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 				? withAspectRatio(initialSize.width - withAlt(x, altKey), initialSize, true)
 				: state.height
 		}),
-		handlePosition: ({x, y}: PositionModel, altKey: boolean, shiftKey: boolean) => state => {
+		handlePosition: ({x, y}: PositionModel, altKey: boolean) => () => {
 			const d = withRotation(x, 0, rotation.z);
 			return {
 				x: initialPosition.x + (altKey ? 0 : d.x / 2),
@@ -227,8 +219,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 			const d = withRotation(
 				0,
 				shiftKey
-					? initialSize.height -
-					withAspectRatio(initialSize.width + x, initialSize, true)
+					? initialSize.height - withAspectRatio(initialSize.width + x, initialSize, true)
 					: y,
 				rotation.z
 			);
@@ -261,8 +252,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 			const d = withRotation(
 				0,
 				shiftKey
-					? initialSize.height -
-					withAspectRatio(initialSize.width + x, initialSize, true)
+					? initialSize.height - withAspectRatio(initialSize.width + x, initialSize, true)
 					: y,
 				rotation.z
 			);
@@ -295,8 +285,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 			const d = withRotation(
 				0,
 				shiftKey
-					? initialSize.height -
-					withAspectRatio(initialSize.width - x, initialSize, true)
+					? initialSize.height - withAspectRatio(initialSize.width - x, initialSize, true)
 					: y,
 				rotation.z
 			);
@@ -387,7 +376,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 				});
 				setRotation(newRotation);
 				setInitialRotation(newRotation);
-				setAdditionalAngle(state => ({x: 0, y: 0, z: additionalDeg}));
+				setAdditionalAngle({x: 0, y: 0, z: additionalDeg});
 				const rotationStep =
 					(Math.round(deg / 45) + rotationClasses.length) % rotationClasses.length;
 				document.body.className = rotationClasses[rotationStep];
@@ -423,12 +412,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 		},
 		[contentRef]
 	);
-	const onMouseLeave = React.useCallback(
-		(event: React.MouseEvent<HTMLElement>) => {
-			//document.body.className = "";
-		},
-		[contentRef]
-	);
+	const onMouseLeave = React.useCallback(() => {}, [contentRef]);
 
 	React.useEffect(() => {
 		if (loaded) {
@@ -611,7 +595,7 @@ export const DnR: React.FunctionComponent<DnrProps> = props => {
 
 DnR.defaultProps = {
 	as: "div",
-	snap: () => false,
+	snap: () => ({}),
 	position: {
 		x: 0,
 		y: 0

@@ -13,4 +13,4 @@ const StyledTextarea = styled.textarea`
 	text-align: center;
 `;
 
-export const Textarea: React.FunctionComponent = props => <StyledTextarea {...props}/>;
+export const Textarea: React.FunctionComponent = props => <StyledTextarea {...props} />;

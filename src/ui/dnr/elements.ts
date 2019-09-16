@@ -7,16 +7,16 @@ const Handle = styled.a.attrs(() => ({
 	onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
 		e.preventDefault();
 	}
-}))<{ metaKey?: boolean; rotationSlice: number }>`
+}))<{metaKey?: boolean; rotationSlice: number}>`
 	position: absolute;
 	z-index: 2;
 	cursor: ${props => {
-	const rotationSlice = rotationCursors[props.rotationSlice];
-	const resizeSlice = resizeCursors[props.rotationSlice];
-	return props.metaKey
-		? `-webkit-image-set(url("${rotationSlice["1x"]}") 1x, url("${rotationSlice["2x"]}") 2x) 9 9, row-resize;`
-		: resizeSlice;
-}};
+		const rotationSlice = rotationCursors[props.rotationSlice];
+		const resizeSlice = resizeCursors[props.rotationSlice];
+		return props.metaKey
+			? `-webkit-image-set(url("${rotationSlice["1x"]}") 1x, url("${rotationSlice["2x"]}") 2x) 9 9, row-resize;`
+			: resizeSlice;
+	}};
 	&::before {
 		content: "";
 		position: absolute;
@@ -93,7 +93,7 @@ export const Handles = styled.div`
 		visibility: visible;
 	}
 `;
-export const Wrapper = styled.div<{ draggable?: boolean; resizable?: boolean }>`
+export const Wrapper = styled.div<{draggable?: boolean; resizable?: boolean}>`
 	z-index: 0;
 	position: absolute;
 	top: 0;
@@ -107,8 +107,8 @@ export const Content = styled.div`
 	max-width: 100%;
 	max-height: 100%;
 	${props =>
-	props.onMouseDown &&
-	css`
+		props.onMouseDown &&
+		css`
 			cursor: move;
 		`};
 `;

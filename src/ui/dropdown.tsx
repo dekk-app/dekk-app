@@ -33,57 +33,7 @@ export const DropShadow = () => (
 		</feMerge>
 	</filter>
 );
-
-//function polarToCartesian(
-//	centerX: number,
-//	centerY: number,
-//	radius: number,
-//	angleInDegrees: number
-//) {
-//	const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
-//	return {
-//		x: centerX + radius * Math.cos(angleInRadians),
-//		y: centerY + radius * Math.sin(angleInRadians)
-//	};
-//}
-
-//function describeArc(x: number, y: number, radius: number, startAngle: number, endAngle: number, dir: number = 0) {
-//	const start = polarToCartesian(x, y, radius, endAngle);
-//	const end = polarToCartesian(x, y, radius, startAngle);
-//	const arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-//	return [
-//		"L",
-//		start.x,
-//		start.y,
-//		"A",
-//		radius,
-//		radius,
-//		0,
-//		arcSweep,
-//		dir,
-//		end.x,
-//		end.y
-//	].join(" ");
-//}
-
 const createD = (width: number, height: number, tipOffset: number = 0): string => {
-	//const radius = 16;
-	//const cornerRadius = 6;
-	//const tipRadius = 3;
-	//const tipDiff = tipRadius * tipRadius * Math.PI;
-	//const tipStartAngle = 90 + tipDiff;
-	//const tipEndAngle = 270 - tipDiff;
-	//return [
-	//	`M ${cornerRadius} ${radius}`,
-	//	describeArc(width / 2 - radius - tipRadius, 0, radius, tipStartAngle, 180),
-	//	describeArc(width / 2, tipRadius, tipRadius, 90, 270, 1),
-	//	describeArc(width / 2 + radius + tipRadius, 0, radius, 180, tipEndAngle),
-	//	describeArc(width, radius, cornerRadius, 180, 270, 1),
-	//	describeArc(width, height, cornerRadius, 270, 360, 1),
-	//	describeArc(0, height, cornerRadius, 0, 90, 1),
-	//	describeArc(0, radius, cornerRadius, 90, 180, 1),
-	//].join(" ");
-
 	const centerX = width / 2;
 	const tY = 12.5;
 	const tX = 11;
