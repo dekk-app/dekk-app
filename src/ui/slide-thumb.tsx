@@ -35,19 +35,22 @@ const StyledSlideIndex = styled.div`
 	justify-content: flex-end;
 	font-size: 12px;
 `;
-export const SlideLink: React.FunctionComponent<{
+export const SlideLink: React.ForwardRefExoticComponent<{
+	ref?: React.Ref<HTMLDivElement>;
 	slideIndex: number;
 	onMouseDown?: (e: React.MouseEvent) => void;
 	isActive?: boolean;
-}> = ({children, slideIndex, isActive, onMouseDown}) => {
+	children: React.ReactChild | React.ReactChild[],
+	style?: React.CSSProperties
+}> = React.forwardRef(({children, slideIndex, isActive, onMouseDown, ...props}, ref) => {
 	const handleEvent = (e: React.MouseEvent) => {
 		e.preventDefault();
 		onMouseDown && onMouseDown(e);
 	};
 	return (
-		<StyledSlideLink tabIndex={0} onMouseDown={handleEvent} isActive={isActive}>
+		<StyledSlideLink {...props} ref={ref} tabIndex={0} onMouseDown={handleEvent} isActive={isActive}>
 			<StyledSlideIndex>{slideIndex}</StyledSlideIndex>
 			<StyledSlideThumb>{children}</StyledSlideThumb>
 		</StyledSlideLink>
 	);
-};
+});

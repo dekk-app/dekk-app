@@ -10,7 +10,7 @@ import store from "../store";
 import {moveFirst, moveLast} from "../store/slides";
 import Dekk from "../types";
 import {Router} from "react-router-static";
-import {ColorPicker} from "./color-picker";
+import {Colorpicker} from "./colorpicker";
 
 const {systemPreferences} = remote;
 
@@ -91,7 +91,7 @@ const Error404 = () => <div>404</div>;
 const routes = {
 	default: Error404,
 	home: Home,
-	colorpicker: ColorPicker,
+	colorpicker: Colorpicker,
 	testWindow: TestWindow
 };
 

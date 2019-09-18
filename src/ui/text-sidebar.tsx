@@ -1,16 +1,17 @@
 import React from "react";
 import {connect} from "react-redux";
-import {
-	StyledAttribution,
-	StyledCaption,
-	StyledCaptionRed,
-	StyledCode,
-	StyledHeadline,
-	StyledHeadlineSmall,
-	StyledQuote,
-	StyledSubHeadline,
-	StyledText
-} from "../elements";
+//import {
+//	StyledAttribution,
+//	StyledCaption,
+//	StyledCaptionRed,
+//	StyledCode,
+//	StyledHeadline,
+//	StyledHeadlineSmall,
+//	StyledQuote,
+//	StyledSubHeadline,
+//	StyledText
+//} from "../elements";
+import {SLOT_TYPES} from "../elements";
 import Dekk from "../types";
 import {
 	setColor as setSlotColor,
@@ -43,23 +44,23 @@ import {Section} from "./section";
 import {Dropdown} from "./dropdown";
 import {OutsideClick} from "./outside-click";
 import {Tabs} from "./tabs";
-import {ColorPicker} from "./color-picker";
+import {Colorpicker} from "./colorpicker";
 import {Grid, Separator, Box, StyledSidebarSubtitle} from "./layout";
 import {NumberRange, StyledNumberInput} from "./text-input";
 import {Select} from "./select";
-// import {ColorPickerEvent, useBroadcast, useSubscribe} from "./broadcast";
+// import {ColorpickerEvent, useBroadcast, useSubscribe} from "./broadcast";
 // import {getPointer} from "./window-utils";
 
 const paragraphStyles = [
-	{key: "headline", label: "Title", component: StyledHeadline},
-	{key: "headline-small", label: "Title small", component: StyledHeadlineSmall},
-	{key: "sub-headline", label: "Subtitle", component: StyledSubHeadline},
-	{key: "caption", label: "Caption", component: StyledCaption},
-	{key: "caption-red", label: "Caption red", component: StyledCaptionRed},
-	{key: "text", label: "Body", component: StyledText},
-	{key: "code", label: "Code", component: StyledCode},
-	{key: "quote", label: "Quote", component: StyledQuote},
-	{key: "attribution", label: "Attribution", component: StyledAttribution}
+	{key: "headline", label: "Title", component: "StyledHeadline"},
+	{key: "headline-small", label: "Title small", component: "StyledHeadlineSmall"},
+	{key: "sub-headline", label: "Subtitle", component: "StyledSubHeadline"},
+	{key: "caption", label: "Caption", component: "StyledCaption"},
+	{key: "caption-red", label: "Caption red", component: "StyledCaptionRed"},
+	{key: "text", label: "Body", component: "StyledText"},
+	{key: "code", label: "Code", component: "StyledCode"},
+	{key: "quote", label: "Quote", component: "StyledQuote"},
+	{key: "attribution", label: "Attribution", component: "StyledAttribution"}
 ];
 
 const TextDropdown: React.ForwardRefExoticComponent<{
@@ -67,10 +68,14 @@ const TextDropdown: React.ForwardRefExoticComponent<{
 	currentSlot?: Dekk.SlotModel;
 	title?: string;
 	isVisible?: boolean;
-}> = React.forwardRef((props, ref) => (
+}> = React.forwardRef((props, ref) => {
+	return (
 	<Dropdown ref={ref} isVisible={props.isVisible} title={props.title}>
 		<StyledList>
-			{paragraphStyles.map((type: {key: string; label: string; component: Dekk.SlotType}) => (
+			{paragraphStyles.map((type: {key: string; label: string; component: Dekk.SlotType}) => {
+				const SlotType = SLOT_TYPES[type.component];
+
+				return (
 				<StyledListItem key={type.key}>
 					<StyledListButton onClick={() => props.onClick(type.component)}>
 						<Icon
@@ -80,13 +85,13 @@ const TextDropdown: React.ForwardRefExoticComponent<{
 									: "empty"
 							}
 						/>
-						<type.component>{type.label}</type.component>
+						<SlotType>{type.label}</SlotType>
 					</StyledListButton>
 				</StyledListItem>
-			))}
+			)})}
 		</StyledList>
 	</Dropdown>
-));
+)});
 
 const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 	const currentSlot = props.slots.find(slot => slot.uuid === props.currentSlot);
@@ -104,7 +109,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 							<Section>Shape styles</Section>
 							<Box>
 								<StyledSidebarSubtitle>Fill</StyledSidebarSubtitle>
-								<ColorPicker
+								<Colorpicker
 									value={(currentSlot as Dekk.SlotModel).format.background}
 									propPath={`${
 										(currentSlot as Dekk.SlotModel).uuid
@@ -136,7 +141,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 											{label: "solid", value: "solid"}
 										]}
 									/>
-									<ColorPicker
+									<Colorpicker
 										value={(currentSlot as Dekk.SlotModel).format.border.color}
 										propPath={`${
 											(currentSlot as Dekk.SlotModel).uuid
@@ -167,7 +172,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 							<Separator />
 							<Box>
 								<StyledSidebarSubtitle>Shadow</StyledSidebarSubtitle>
-								<ColorPicker
+								<Colorpicker
 									value={(currentSlot as Dekk.SlotModel).format.shadow.color}
 									propPath={`${
 										(currentSlot as Dekk.SlotModel).uuid
@@ -297,8 +302,8 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 										e.preventDefault();
 										setDropdown(isOpen => !isOpen);
 									}}>
-									{currentSlot && (
-										<currentSlot.type>
+									{currentSlot && ((SlotType) =>
+										<SlotType>
 											{
 												(
 													paragraphStyles.find(
@@ -309,8 +314,8 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 													}
 												).label
 											}
-										</currentSlot.type>
-									)}
+										</SlotType>
+									)(SLOT_TYPES[currentSlot.type])}
 								</StyledListButton>
 								<OutsideClick
 									onOutsideClick={() => {
@@ -359,7 +364,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 							<Separator />
 							<Box>
 								<StyledSidebarSubtitle>Color</StyledSidebarSubtitle>
-								<ColorPicker
+								<Colorpicker
 									value={(currentSlot as Dekk.SlotModel).format.color}
 									propPath={`${
 										(currentSlot as Dekk.SlotModel).uuid

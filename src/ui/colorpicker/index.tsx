@@ -1,10 +1,11 @@
 import styled, {css} from "styled-components";
-import {palette} from "../theme";
+import {palette} from "../../theme";
 import React from "react";
-import {Dropdown} from "./dropdown";
-import {Icon, StyledSvg} from "./icon";
-import {getPointer} from "./window-utils";
-import {ColorPickerEvent, useBroadcast, useSubscribe} from "./broadcast";
+import {Dropdown} from "../dropdown";
+import {Icon, StyledSvg} from "../icon";
+import {getPointer} from "../window-utils";
+import {ColorpickerEvent, useBroadcast, useSubscribe} from "../broadcast";
+import png_colorPanel from "./images/ColorPanel@2x.png";
 
 const colorSwatches = [
 	palette.indigo[300],
@@ -77,12 +78,12 @@ const Swatches = styled.div`
 	padding: 5px;
 	overflow: visible;
 `;
-const ColorPickerWrapper = styled.div`
+const ColorpickerWrapper = styled.div`
 	position: relative;
 	display: flex;
 	width: 72px;
 `;
-const ColorPickerLabel = styled.label`
+const ColorpickerLabel = styled.label`
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -99,7 +100,7 @@ const ColorPickerLabel = styled.label`
 		background: ${props => props.theme.colorpicker.background2};
 	}
 `;
-const ColorPickerSwatches = styled.a.attrs({href: "#"})<{transparent?: boolean}>`
+const ColorpickerSwatches = styled.a.attrs({href: "#"})<{transparent?: boolean}>`
 	display: flex;
 	align-items: center;
 	align-content: center;
@@ -141,7 +142,7 @@ const ColorPickerSwatches = styled.a.attrs({href: "#"})<{transparent?: boolean}>
 		pointer-events: none;
 	}
 `;
-const ColorPickerInput = styled.input.attrs({
+const ColorpickerInput = styled.input.attrs({
 	type: "color"
 })`
 	position: absolute;
@@ -149,7 +150,7 @@ const ColorPickerInput = styled.input.attrs({
 	right: 100%;
 `;
 
-export const ColorPickerWindow: React.ForwardRefExoticComponent<{
+export const ColorpickerPopover: React.ForwardRefExoticComponent<{
 	value: string | null;
 	onChange: (colorValue: string) => void;
 	tipOffset?: number;
@@ -182,19 +183,27 @@ export const ColorPickerWindow: React.ForwardRefExoticComponent<{
 	);
 });
 
-export const ColorPicker: React.FunctionComponent<{
+export const Colorpicker: React.FunctionComponent<{
 	value: string;
 	onChange: (colorValue: string) => void;
 	propPath: string;
-}> = ({propPath, value, ...props}) => {
+}> = ({propPath, value, onChange,  ...props}) => {
 	const swatchesRef = React.createRef<HTMLAnchorElement>();
 	const wrapperRef = React.createRef<HTMLDivElement>();
 	const [pointer, setPointer] = React.useState();
+	const handleColorChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) =>
+		onChange(e.target.value), [onChange]);
+	const handleRequest = React.useCallback((e: React.MouseEvent) => {
+		e.preventDefault();
+		if (e.target === swatchesRef.current) {
+			setPointer(getPointer(e.target as HTMLButtonElement));
+		}
+	}, [swatchesRef, setPointer]);
 	useSubscribe(
 		{
-			[ColorPickerEvent.OnChange]: (event, {response}) => {
+			[ColorpickerEvent.OnChange]: (event, {response}) => {
 				if (propPath && propPath === response.path && response.colorValue) {
-					props.onChange(response.colorValue);
+					onChange(response.colorValue);
 				}
 			}
 		},
@@ -202,7 +211,7 @@ export const ColorPicker: React.FunctionComponent<{
 	);
 	useBroadcast(
 		{
-			[ColorPickerEvent.OnRequest]: {
+			[ColorpickerEvent.OnRequest]: {
 				pointer,
 				request: {
 					path: propPath,
@@ -213,29 +222,25 @@ export const ColorPicker: React.FunctionComponent<{
 		[pointer]
 	);
 	return (
-		<ColorPickerWrapper ref={wrapperRef}>
-			<ColorPickerSwatches
+		<ColorpickerWrapper ref={wrapperRef}>
+			<ColorpickerSwatches
 				tabIndex={0}
 				transparent={value === "transparent"}
 				style={{backgroundColor: value}}
 				ref={swatchesRef as React.Ref<HTMLAnchorElement>}
-				onClick={(e: React.MouseEvent) => {
-					e.preventDefault();
-					if (e.target === swatchesRef.current) {
-						setPointer(getPointer(e.target as HTMLButtonElement));
-					}
-				}}>
+				onClick={handleRequest}>
 				<Icon icon="chevronDown" color={palette.white} background="rgba(0,0,0,0.5)" round />
-			</ColorPickerSwatches>
-			<ColorPickerLabel>
-				<Icon icon="circle" color="url(#rainbowSwirl)" />
-				<ColorPickerInput
+			</ColorpickerSwatches>
+			<ColorpickerLabel>
+				<svg viewBox="0 0 60 60" style={{height: 24, width: 24}}>
+					<image href={png_colorPanel} height="60" width="60"/>
+				</svg>
+				{/*<Icon icon="circle" color="url(#rainbowSwirl)" />*/}
+				<ColorpickerInput
 					value={value}
-					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-						props.onChange(e.target.value)
-					}
+					onChange={handleColorChange}
 				/>
-			</ColorPickerLabel>
-		</ColorPickerWrapper>
+			</ColorpickerLabel>
+		</ColorpickerWrapper>
 	);
 };

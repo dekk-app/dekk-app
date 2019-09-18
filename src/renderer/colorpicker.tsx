@@ -1,11 +1,11 @@
 import React from "react";
 import {remote} from "electron";
-import {ColorPickerEvent, useBroadcast, useSubscribe} from "../ui/broadcast";
+import {ColorpickerEvent, useBroadcast, useSubscribe} from "../ui/broadcast";
 import {GlobalStyle} from "../ui/global-style";
 import Patterns from "../ui/patterns";
-import {ColorPickerWindow} from "../ui/color-picker";
+import {ColorpickerPopover} from "../ui/colorpicker";
 
-export const ColorPicker = () => {
+export const Colorpicker = () => {
 	const ref = React.useRef<HTMLDivElement>();
 	const [propsPath, setPropsPath] = React.useState<null | string>(null);
 	const [isVisible, setVisible] = React.useState(false);
@@ -15,7 +15,7 @@ export const ColorPicker = () => {
 	const colorpicker = React.useMemo(() => remote.getCurrentWindow(), [setColorValue]);
 	useSubscribe(
 		{
-			[ColorPickerEvent.OnRequest]: (event, {pointer, request: {path, value}}) => {
+			[ColorpickerEvent.OnRequest]: (event, {pointer, request: {path, value}}) => {
 				if (ref.current && path && value && pointer) {
 					setPropsPath(path);
 					setSelectedColor(value);
@@ -62,7 +62,7 @@ export const ColorPicker = () => {
 	);
 	useSubscribe(
 		{
-			[ColorPickerEvent.OnClose]: () => {
+			[ColorpickerEvent.OnClose]: () => {
 				setVisible(false);
 				setPropsPath(null);
 				setColorValue(null);
@@ -75,7 +75,7 @@ export const ColorPicker = () => {
 
 	useBroadcast(
 		{
-			[ColorPickerEvent.OnChange]: {response: {colorValue, path: propsPath}}
+			[ColorpickerEvent.OnChange]: {response: {colorValue, path: propsPath}}
 		},
 		[colorValue]
 	);
@@ -83,6 +83,7 @@ export const ColorPicker = () => {
 	const handleChange = React.useCallback(
 		value => {
 			setColorValue(value);
+			setSelectedColor(value);
 			colorpicker.hide();
 			colorpicker.once("hide", () => {
 				setVisible(false);
@@ -97,7 +98,7 @@ export const ColorPicker = () => {
 		<React.Fragment>
 			<GlobalStyle />
 			<Patterns />
-			<ColorPickerWindow
+			<ColorpickerPopover
 				value={selectedColor}
 				ref={ref as React.Ref<HTMLDivElement>}
 				isVisible={isVisible}

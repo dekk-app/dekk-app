@@ -1,53 +1,53 @@
 import React from "react";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 
-export enum ColorPickerEvent {
+export enum ColorpickerEvent {
 	OnRequest = "on-colorpicker-request",
 	OnChange = "on-colorpicker-change",
 	OnClose = "on-colorpicker-close",
 	OnOpen = "on-colorpicker-open"
 }
-export type ColorPickerEventHandler<T> = (event: IpcRendererEvent, data: T) => void;
+export type ColorpickerEventHandler<T> = (event: IpcRendererEvent, data: T) => void;
 
-export interface ColorPickerResponse {
+export interface ColorpickerResponse {
 	path: null | string;
 	colorValue: null | string;
 }
 
-export interface ColorPickerPointer {
+export interface ColorpickerPointer {
 	clientX: number;
 	clientY: number;
 }
 
-export interface ColorPickerRequest {
+export interface ColorpickerRequest {
 	path: null | string;
 	value: string;
 }
 
-export interface ColorPickerRequestData {
-	pointer: ColorPickerPointer;
-	request: ColorPickerRequest;
+export interface ColorpickerRequestData {
+	pointer: ColorpickerPointer;
+	request: ColorpickerRequest;
 }
 
-export interface ColorPickerChangeData {
-	response: ColorPickerResponse;
+export interface ColorpickerChangeData {
+	response: ColorpickerResponse;
 }
 
 export type ColorpickerWithData = {
-	[ColorPickerEvent.OnChange]?: ColorPickerChangeData;
-	[ColorPickerEvent.OnRequest]?: ColorPickerRequestData;
-	[ColorPickerEvent.OnOpen]?: {};
-	[ColorPickerEvent.OnClose]?: {};
+	[ColorpickerEvent.OnChange]?: ColorpickerChangeData;
+	[ColorpickerEvent.OnRequest]?: ColorpickerRequestData;
+	[ColorpickerEvent.OnOpen]?: {};
+	[ColorpickerEvent.OnClose]?: {};
 };
 
-export type ColorPickerListeners = {
-	[ColorPickerEvent.OnChange]?: ColorPickerEventHandler<ColorPickerChangeData>;
-	[ColorPickerEvent.OnRequest]?: ColorPickerEventHandler<ColorPickerRequestData>;
-	[ColorPickerEvent.OnOpen]?: ColorPickerEventHandler<undefined>;
-	[ColorPickerEvent.OnClose]?: ColorPickerEventHandler<undefined>;
+export type ColorpickerListeners = {
+	[ColorpickerEvent.OnChange]?: ColorpickerEventHandler<ColorpickerChangeData>;
+	[ColorpickerEvent.OnRequest]?: ColorpickerEventHandler<ColorpickerRequestData>;
+	[ColorpickerEvent.OnOpen]?: ColorpickerEventHandler<undefined>;
+	[ColorpickerEvent.OnClose]?: ColorpickerEventHandler<undefined>;
 };
 
-export type EventListeners = ColorPickerListeners;
+export type EventListeners = ColorpickerListeners;
 export type EventsWithData = ColorpickerWithData;
 
 export interface BroadcastProps {

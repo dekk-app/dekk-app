@@ -1,8 +1,11 @@
 import update from "immutability-helper";
 import {Reducer} from "redux";
 import Dekk from "../types";
+import {store as electronStore} from "./electron";
+import {convertToRaw, convertFromRaw, EditorState} from 'draft-js';
 
 const ADD = "slots:ADD";
+const REPLACE = "slots:REPLACE";
 const REMOVE = "slots:REMOVE";
 const SET_EDITOR_STATE = "slots:SET_EDITOR_STATE";
 const SET_POSITION = "slots:SET_POSITION";
@@ -18,88 +21,112 @@ const SET_SHADOW = "slots:SET_SHADOW";
 const SET_COLOR = "slots:SET_COLOR";
 const SET_OPACITY = "slots:SET_OPACITY";
 
-const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel}> = (
+
+const updateAndSave = ((state: Dekk.SlotModel[]) => {
+	electronStore.set("slots", state.map(slot => ({
+		...slot,
+		editorState: slot.editorState ? convertToRaw(slot.editorState.getCurrentContent()) : undefined
+	})));
+	return state
+});
+
+const updateAndSaveLoaded = ((state: Dekk.SlotModel[]) => {
+	electronStore.set("slots", state);
+	return state.map(slot => ({
+		...slot,
+		editorState: slot.editorState
+			? EditorState.createWithContent(convertFromRaw(slot.editorState))
+			: undefined
+	}))
+});
+
+const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel & {slots: Dekk.SlotModel[]}}> = (
 	state = [],
 	{type, data}
 ) => {
+	if (!data) {
+		return state;
+	}
 	const slotIndex = state.findIndex(slot => slot.uuid === data.uuid);
 	switch (type) {
 		case ADD:
-			return update(state, {$push: [data as Dekk.SlotModel]});
+			return updateAndSave(update(state, {$push: [data as Dekk.SlotModel]}));
+		case REPLACE:
+			return updateAndSaveLoaded(data.slots);
 		case SET_VALUE:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					value: {
 						$set: data.value
 					}
 				}
-			});
+			}));
 		case SET_TYPE:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					type: {
 						$set: data.type
 					}
 				}
-			});
+			}));
 		case SET_PROPS:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					props: {
 						$set: data.props
 					}
 				}
-			});
+			}));
 		case SET_SIZE:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					size: {
 						$set: data.size
 					}
 				}
-			});
+			}));
 		case SET_VERTICAL_ALIGNMENT:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					verticalAlignment: {
 						$set: data.verticalAlignment
 					}
 				}
-			});
+			}));
 		case SET_POSITION:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					position: {
 						$set: data.position
 					}
 				}
-			});
+			}));
 		case SET_ROTATION:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					rotation: {
 						$set: data.rotation
 					}
 				}
-			});
+			}));
 		case SET_BACKGROUND:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					format: {
 						$merge: data.format as Dekk.SlotFormat
 					}
 				}
-			});
+			}));
 		case SET_OPACITY:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					format: {
 						$merge: data.format as Dekk.SlotFormat
 					}
 				}
-			});
+			}));
 		case SET_BORDER:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					format: {
 						border: {
@@ -107,9 +134,9 @@ const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel}> =
 						}
 					}
 				}
-			});
+			}));
 		case SET_SHADOW:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					format: {
 						shadow: {
@@ -117,29 +144,29 @@ const reducer: Reducer<Dekk.SlotModel[], {type: string; data: Dekk.SlotModel}> =
 						}
 					}
 				}
-			});
+			}));
 		case SET_COLOR:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					format: {
 						$merge: data.format as Dekk.SlotFormat
 					}
 				}
-			});
+			}));
 		case SET_EDITOR_STATE:
-			return update(state, {
+			return updateAndSave(update(state, {
 				[slotIndex]: {
 					editorState: {
 						$set: data.editorState
 					}
 				}
-			});
+			}));
 		case REMOVE:
-			return update(state, {
+			return updateAndSave(update(state, {
 				$splice: [[slotIndex, 1]]
-			});
+			}));
 		default:
-			return state;
+			return updateAndSave(state);
 	}
 };
 
@@ -213,6 +240,11 @@ export const setShadow = (uuid: Dekk.UUID, shadow: Dekk.Shadow) => ({
 export const setColor = (uuid: Dekk.UUID, color: string) => ({
 	type: SET_COLOR,
 	data: {format: {color}, uuid}
+});
+
+export const replace = (slots: Dekk.SlotModel[]) => ({
+	type: REPLACE,
+	data: {slots}
 });
 
 export default reducer;

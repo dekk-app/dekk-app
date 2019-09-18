@@ -9,22 +9,23 @@ import {select} from "../store/current-slot";
 import {
 	setEditorState,
 	setPosition,
+	setProps,
 	setRotation,
 	setSize,
-	setValue,
-	setProps
+	setValue
 } from "../store/slots";
 import Dekk from "../types";
 import {Slide} from "./slide";
 import {SlotEditor} from "./editor";
 import {
 	ALIGN_ITEMS,
-	StyledImage,
+	SLOT_TYPES,
 	TextAlignCenter,
 	TextAlignJustify,
 	TextAlignLeft,
 	TextAlignRight
 } from "../elements";
+
 import {DnR} from "./dnr";
 import {BoundingBox} from "./dnr/types";
 import styled from "styled-components";
@@ -72,10 +73,12 @@ const buildThumb = (slot: Dekk.SlotModel) => {
 		)}`,
 		...slot.size
 	};
-	return slot.type === StyledImage ? (
-		<slot.type {...slot.props} style={style} />
+	const SlotComponent = SLOT_TYPES[slot.type];
+
+	return slot.type === "StyledImage" ? (
+		<SlotComponent {...slot.props} style={style} />
 	) : (
-		<slot.type {...slot.props} style={style} dangerouslySetInnerHTML={{__html}} />
+		<SlotComponent {...slot.props} style={style} dangerouslySetInnerHTML={{__html}} />
 	);
 };
 
@@ -227,7 +230,7 @@ const ToSlotImpl = ({
 	const isSelected = currentSlot === slot.uuid;
 	const isDraggable = !isEditable;
 	const isResizable = !isEditable && isSelected;
-
+	const SlotComponent = SLOT_TYPES[slot.type];
 	return asThumb ? (
 		buildThumb(slot)
 	) : (
@@ -297,8 +300,8 @@ const ToSlotImpl = ({
 						setSlotSize(slot.uuid, size);
 						setSlotPosition(slot.uuid, position);
 					}}>
-					{slot.type === StyledImage ? (
-						<slot.type
+					{slot.type === "StyledImage" ? (
+						<SlotComponent
 							{...(slot.props || {})}
 							data-dekk-slot={slot.uuid}
 							verticalAlignment={slot.verticalAlignment}
@@ -307,7 +310,7 @@ const ToSlotImpl = ({
 							className={isSelected ? "selected" : undefined}
 						/>
 					) : (
-						<slot.type
+						<SlotComponent
 							{...(slot.props || {})}
 							ref={slotRef}
 							data-dekk-slot={slot.uuid}
@@ -344,7 +347,7 @@ const ToSlotImpl = ({
 								}
 								placeholder={(!isEditable || !isSelected) && "Double Click to Edit"}
 							/>
-						</slot.type>
+						</SlotComponent>
 					)}
 				</DnR>
 			)}

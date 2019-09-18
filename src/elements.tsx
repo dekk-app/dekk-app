@@ -1,5 +1,6 @@
 import styled, {css} from "styled-components";
 import Dekk from "./types";
+import React from "react";
 
 export const ALIGN_ITEMS = {
 	top: "flex-start",
@@ -111,3 +112,15 @@ export const TextAlignJustify = styled.div`
 	flex: 1;
 	text-align: justify;
 `;
+export const SLOT_TYPES: { [key: string]: React.ComponentType<any> } = {
+	StyledAttribution,
+	StyledCaption,
+	StyledCaptionRed,
+	StyledCode,
+	StyledHeadline,
+	StyledHeadlineSmall,
+	StyledQuote,
+	StyledImage,
+	StyledSubHeadline,
+	StyledText
+};

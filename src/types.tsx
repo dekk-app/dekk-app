@@ -34,7 +34,6 @@ namespace Dekk {
 	}
 
 	export interface SlideModel {
-		order: string;
 		slots: UUID[];
 		uuid: UUID;
 		format: SlideFormat;
@@ -85,7 +84,7 @@ namespace Dekk {
 		z: number;
 	}
 
-	export type SlotType<T = SlotProps> = string | React.ComponentType<T>;
+	export type SlotType = string;
 
 	export type VerticalAlignment = "bottom" | "middle" | "top";
 	export interface SlotModel<T = SlotProps> {
@@ -95,7 +94,7 @@ namespace Dekk {
 		rotation: Rotation;
 		props?: T;
 		size: Size;
-		type: SlotType<T>;
+		type: SlotType;
 		uuid: string;
 		value?: string;
 		verticalAlignment: VerticalAlignment;
@@ -133,12 +132,15 @@ namespace Dekk {
 	export type ToSlotProps = ToSlotActions & ToSlotState & ToSlotComponentProps;
 
 	export interface FrameActions {
+		replaceSlides: (slides: SlideModel[]) => void;
+		replaceSlots: (slides: SlotModel[]) => void;
 		addSlide: (slide: SlideModel) => void;
 		addSlot: (slot: SlotModel) => void;
 		assignSlot: (uuid: UUID, slotId: UUID) => void;
 		dischargeSlot: (uuid: UUID, slotId: UUID) => void;
 		removeSlide: (uuid: UUID) => void;
 		removeSlot: (uuid: UUID) => void;
+		reorderSlides: (uuid: UUID, from: number, to: number) => void;
 		selectSlide: (uuid: UUID) => void;
 		selectSlot: (uuid: UUID) => void;
 		setSlotProps: (uuid: UUID, props: SlotProps) => void;

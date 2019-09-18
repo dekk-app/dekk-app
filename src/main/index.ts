@@ -1,10 +1,10 @@
-import {app, BrowserWindow, ipcMain} from "electron";
-import * as path from "path";
+import {app, BrowserWindow, ipcMain, Menu, shell} from "electron";
+import path from "path";
 import {format as formatUrl} from "url";
 import {disableZoom} from "electron-util";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const ColorPickerEvents = {
+const ColorpickerEvents = {
 	OnRequest: "on-colorpicker-request",
 	OnChange: "on-colorpicker-change",
 	OnClose: "on-colorpicker-close",
@@ -19,30 +19,78 @@ const webPreferences = isDevelopment
 			nodeIntegration: true
 	  }
 	: {
-			nodeIntegration: true
-			//devTools: false
+			nodeIntegration: true,
+			devTools: false
 	  };
 
-// const template = [
-// 	{
-// 		role: "help",
-// 		submenu: [
-// 			{
-// 				label: "Learn More",
-// 				click: async () => {
-// 					await shell.openExternal("https://github.com/dekk-app/dekk");
-// 				}
-// 			}
-// 		]
-// 	}
-// ];
-
+const buildTemplate  = (window: BrowserWindow) => [
+	{
+		label: "File",
+		submenu: [
+			{
+				label: "Open",
+				accelerator: "CommandOrControl+O",
+				click: async () => {
+					window.webContents.send("open-dekk");
+				}
+			},
+			{
+				label: "New",
+				accelerator: "CommandOrControl+N",
+				click: async () => {
+					window.webContents.send("new-dekk");
+				}
+			},
+			{
+				label: "Save",
+				accelerator: "CommandOrControl+S",
+				click: async () => {
+					window.webContents.send("save-dekk");
+				}
+			},
+			{
+				label: "Save As",
+				accelerator: "CommandOrControl+Shift+S",
+				click: async () => {
+					window.webContents.send("save-as-dekk");
+				}
+			},
+			{role: "close"},
+			{role: "quit"}
+		]
+	},
+	{
+		label: 'View',
+		submenu: [
+			{ role: 'reload' },
+			{ role: 'forcereload' },
+			{ role: 'toggledevtools' },
+			{ type: 'separator' },
+			{ role: 'resetzoom' },
+			{ role: 'zoomin' },
+			{ role: 'zoomout' },
+			{ type: 'separator' },
+			{ role: 'togglefullscreen' }
+		]
+	},
+	{
+		role: "help",
+		submenu: [
+			{
+				label: "Learn More",
+				click: async () => {
+					await shell.openExternal("https://github.com/dekk-app/dekk");
+				}
+			}
+		]
+	}
+];
 function createMainWindow() {
 	const window = new BrowserWindow({
 		webPreferences,
 		titleBarStyle: "hidden",
 		movable: true,
-		x: 600,
+		x: 1000,
 		y: 100,
 		width: 1800,
 		height: 1000,
@@ -71,6 +119,10 @@ function createMainWindow() {
 	});
 
 	disableZoom(window);
+	// @ts-ignore
+	const menu = Menu.buildFromTemplate(buildTemplate(window));
+	Menu.setApplicationMenu(menu);
+
 
 	if (isDevelopment) {
 		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?route=home`);
@@ -94,9 +146,6 @@ function createMainWindow() {
 				query: {route: "colorpicker"}
 			})
 		);
-		// @ts-ignore
-		//const menu = Menu.buildFromTemplate(template);
-		//Menu.setApplicationMenu(menu);
 	}
 
 	window.on("closed", () => {
@@ -112,21 +161,21 @@ function createMainWindow() {
 	popover.hide();
 	// transparency clicks!
 	popover.setIgnoreMouseEvents(true, {forward: true});
-	const events: string[] = Object.values(ColorPickerEvents);
+	const events: string[] = Object.values(ColorpickerEvents);
 
 	events.forEach(eventName => {
 		ipcMain.on(eventName, (event, data) => {
-			if (eventName === ColorPickerEvents.OnRequest) {
+			if (eventName === ColorpickerEvents.OnRequest) {
 				popover.webContents.send(eventName, data);
 				// popover.show();
-			} else if (eventName === ColorPickerEvents.OnChange) {
+			} else if (eventName === ColorpickerEvents.OnChange) {
 				window.webContents.send(eventName, data);
 			}
 		});
 	});
 
 	window.on("focus", () => {
-		popover.webContents.send(ColorPickerEvents.OnClose, {});
+		popover.webContents.send(ColorpickerEvents.OnClose, {});
 	});
 
 	return window;

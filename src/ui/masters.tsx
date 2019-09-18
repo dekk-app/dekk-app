@@ -1,6 +1,7 @@
 import {EditorState, RichUtils} from "draft-js";
 import {v4 as uuid} from "uuid";
-import {StyledHeadline, StyledImage, StyledSubHeadline} from "../elements";
+import jpg_image from "./image.jpg";
+// import {StyledHeadline, StyledImage, StyledSubHeadline} from "../elements";
 import Dekk from "../types";
 import {palette} from "../theme";
 // import {getRandomPhoto} from "./unsplash";
@@ -55,7 +56,7 @@ export const createSlot = (props: Partial<Dekk.SlotModel>): Dekk.SlotModel =>
 export const createImageSlot = (props: Partial<Dekk.SlotModel>): Dekk.SlotModel =>
 	({
 		uuid: uuid(),
-		type: StyledImage,
+		type: "StyledImage",
 		verticalAlignment: "center",
 		zIndex: 0,
 		format: {
@@ -88,7 +89,7 @@ type masterFn = () => Promise<{slots: Dekk.SlotModel[]; slide: Dekk.SlideModel}>
 const MASTERS: {[key: string]: masterFn} = {
 	[COVER]: async () => {
 		const title = createSlot({
-			type: StyledHeadline,
+			type: "StyledHeadline",
 			verticalAlignment: "bottom",
 			size: {
 				width: 1000,
@@ -105,7 +106,7 @@ const MASTERS: {[key: string]: masterFn} = {
 			}
 		});
 		const subtitle = createSlot({
-			type: StyledSubHeadline,
+			type: "StyledSubHeadline",
 			verticalAlignment: "top",
 			size: {
 				width: 1000,
@@ -126,7 +127,6 @@ const MASTERS: {[key: string]: masterFn} = {
 		const slide: Dekk.SlideModel = {
 			uuid: uuid(),
 			slots: [title.uuid, subtitle.uuid],
-			order: "-1",
 			format: {
 				background: palette.white
 			}
@@ -138,7 +138,7 @@ const MASTERS: {[key: string]: masterFn} = {
 	},
 	[PHOTO_VERTICAL]: async () => {
 		const title = createSlot({
-			type: StyledHeadline,
+			type: "StyledHeadline",
 			verticalAlignment: "bottom",
 			size: {
 				width: 500,
@@ -155,7 +155,7 @@ const MASTERS: {[key: string]: masterFn} = {
 			}
 		});
 		const subtitle = createSlot({
-			type: StyledSubHeadline,
+			type: "StyledSubHeadline",
 			verticalAlignment: "top",
 			size: {
 				width: 500,
@@ -191,9 +191,9 @@ const MASTERS: {[key: string]: masterFn} = {
 				z: 0
 			},
 			props: {
-				src: "https://placehold.it/1000x1400",
+				src: jpg_image,
 				alt: "placeholder",
-				filename: "1000x1400.jpg"
+				filename: "image.jpg"
 			}
 		});
 		title.editorState = RichUtils.toggleBlockType(title.editorState, "text-align-center");
@@ -201,7 +201,6 @@ const MASTERS: {[key: string]: masterFn} = {
 		const slide: Dekk.SlideModel = {
 			uuid: uuid(),
 			slots: [title.uuid, subtitle.uuid, image.uuid],
-			order: "-1",
 			format: {
 				background: palette.white
 			}

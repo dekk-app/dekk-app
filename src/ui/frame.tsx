@@ -1,18 +1,21 @@
-//import {remote} from "electron";
 import React from "react";
 import {connect} from "react-redux";
-import {Pane, SortablePane} from "react-sortable-pane";
+import {DragDropContext, Droppable, Draggable, DropResult} from "react-beautiful-dnd";
+import png_image from "./image.jpg";
 import {StyledImage, StyledText} from "../elements";
 import {select as selectSlide} from "../store/current-slide";
 import {select as selectSlot} from "../store/current-slot";
 import {
+	replace as replaceSlides,
 	add as addSlide,
+	reorder as reorderSlides,
 	assign as assignSlot,
 	discharge as dischargeSlot,
 	remove as removeSlide,
 	setBackground as setSlideBackground
 } from "../store/slides";
 import {
+	replace as replaceSlots,
 	add as addSlot,
 	remove as removeSlot,
 	setEditorState,
@@ -42,18 +45,30 @@ import {Toolbar, ToolbarButton, ToolbarFlex} from "./toolbar";
 import {createFromMaster, createSlot, getSlotRect, PHOTO_VERTICAL} from "./masters";
 import {TextSidebar} from "./text-sidebar";
 import {ImageSidebar} from "./image-sidebar";
-import {ColorPicker} from "./color-picker";
+import {Colorpicker} from "./colorpicker";
 import {Section} from "./section";
 import {palette} from "../theme";
 import Patterns from "./patterns";
+import {remote, ipcRenderer} from "electron";
+import fs from "fs";
+import {store as electronStore} from "../store/electron";
+import * as path from "path";
 
 const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props}) => {
+	const [projectFile, setProjectFile] = React.useState<null|string>(null);
 	const [zoomLevel, setZoomLevel] = React.useState(1);
-	const [sorting, setSorting] = React.useState<string[]>([]);
 	const [isEditable, setEditable] = React.useState(false);
 	React.useEffect(() => {
 		setEditable(false);
 	}, [props.currentSlot]);
+
+	const onDragEnd = React.useCallback(({source, destination}: DropResult) => {
+		if (!destination) {
+			return;
+		}
+		props.reorderSlides(props.currentSlide, source.index, destination.index);
+	}, [props.reorderSlides]);
+
 	React.useEffect(() => {
 		if (!props.currentSlot || isEditable) {
 			return;
@@ -99,10 +114,8 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 	const editorRef: React.RefObject<any> = React.useRef(null);
 	const addSlide = async () => {
 		const {slots, slide} = await createFromMaster(PHOTO_VERTICAL);
-		const slideOrder = `${props.slides.length}`;
 		slots.forEach(slot => props.addSlot(slot));
-		props.addSlide({...slide, order: slideOrder});
-		setSorting(currentSorting => [...currentSorting, slideOrder]);
+		props.addSlide(slide);
 		return slide;
 	};
 	const addTextSlot = () => {
@@ -117,17 +130,109 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 		const slot = createSlot({
 			type: StyledImage,
 			props: {
-				src: "https://placehold.it/300",
-				filename: "300.jpg"
+				src: png_image,
+				filename: "image.jpg"
 			},
 			...getSlotRect(300)
 		});
 		props.addSlot(slot);
 		props.assignSlot(currentSlide.uuid, slot.uuid);
 	};
-	const sortSlides = (order: any) => {
-		setSorting(order);
-	};
+
+	const saveAsDekk = React.useCallback(() => {
+		remote.dialog.showSaveDialog({
+			filters: [
+				{ name: 'Dekk', extensions: ['dek'] }
+			],
+		}).then(({filePath}) => {
+			if (!filePath) {
+				console.error("no filename was selected");
+				return;
+			}
+			setProjectFile(filePath);
+			fs.writeFile(filePath, JSON.stringify(electronStore.store), err => {
+				if (err) {
+					console.error(err);
+				}
+			});
+		});
+	}, [setProjectFile, electronStore]);
+
+	const saveDekk = React.useCallback(() => {
+		if (projectFile) {
+			fs.writeFile(projectFile, JSON.stringify(electronStore.store), err => {
+				if (err) {
+					console.error(err);
+				}
+			});
+		} else {
+			saveAsDekk();
+		}
+	}, [projectFile, saveAsDekk, electronStore]);
+
+	const openDekk = React.useCallback(() => {
+		remote.dialog.showOpenDialog({
+			filters: [
+				{ name: 'Dekk', extensions: ['dek'] }
+			]
+		}).then(({filePaths}) => {
+			if (!filePaths || !filePaths.length) {
+				console.error("no filename was selected");
+				return;
+			}
+			const [file] = filePaths;
+			setProjectFile(file);
+			fs.readFile(file, "utf-8", (err, data) => {
+				if (err) {
+					console.error(err);
+				}
+				const {slides, slots} = JSON.parse(data);
+				props.replaceSlides(slides);
+				props.replaceSlots(slots);
+				props.selectSlide(slides[0].uuid);
+				props.selectSlot("");
+			});
+		});
+	}, [setProjectFile, props.replaceSlides, props.replaceSlots, props.selectSlide, props.selectSlot]);
+
+	const newDekk = React.useCallback(() => {
+		if (!projectFile) {
+			remote.dialog.showMessageBox({
+				message: "The previous file has been edited without saving. are you sure you want to proceed?",
+				buttons: ["Cancel", "OK"]
+			}).then(({response}) => {
+				if (response === 1) {
+					props.replaceSlides([]);
+					props.replaceSlots([]);
+					props.selectSlide("");
+					props.selectSlot("");
+					setProjectFile(null);
+				}
+			})
+		} else {
+			props.replaceSlides([]);
+			props.replaceSlots([]);
+			props.selectSlide("");
+			props.selectSlot("");
+			setProjectFile(null);
+		}
+
+	}, [projectFile, setProjectFile, props.replaceSlides, props.replaceSlots, props.selectSlide, props.selectSlot]);
+
+	React.useEffect(() => {
+		ipcRenderer.addListener("save-as-dekk", saveAsDekk);
+		ipcRenderer.addListener("save-dekk", saveDekk);
+		ipcRenderer.addListener("new-dekk", newDekk);
+		ipcRenderer.addListener("open-dekk", openDekk);
+
+		return () => {
+			ipcRenderer.removeListener("save-as-dekk", saveAsDekk);
+			ipcRenderer.removeListener("save-dekk", saveDekk);
+			ipcRenderer.removeListener("new-dekk", newDekk);
+			ipcRenderer.removeListener("open-dekk", openDekk);
+		};
+	}, [saveAsDekk, saveDekk, newDekk, openDekk]);
+
 	const [firstSlide] = props.slides;
 	const currentSlide: Dekk.SlideModel =
 		props.slides.find(slide => slide.uuid === props.currentSlide) || firstSlide;
@@ -136,7 +241,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 		<Layout sidebarLeft={true} sidebarRight={true}>
 			<GlobalStyle />
 			<Patterns />
-			<Toolbar title="Untitled">
+			<Toolbar title={projectFile ? path.parse(projectFile).name : "Untitled"}>
 				<ToolbarButton label="View" icon="view" />
 				<ToolbarButton
 					label="Zoom in"
@@ -167,32 +272,46 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 				</StyledGroupedButton>
 			</Toolbar>
 			<Navigator>
-				<SortablePane
-					direction="vertical"
-					disableEffect
-					margin={0}
-					style={{
-						height: 120
-					}}
-					order={sorting}
-					onOrderChange={sortSlides}>
-					{props.slides.map(slide => (
-						<Pane
-							key={parseInt(slide.order)}
-							size={{width: 200, height: 120}}
-							style={{display: "flex"}}>
-							<SlideLink
-								slideIndex={sorting.findIndex(order => slide.order == order) + 1}
-								onMouseDown={() => {
-									props.selectSlot("");
-									props.selectSlide(slide.uuid);
-								}}
-								isActive={currentSlide && currentSlide.uuid === slide.uuid}>
-								<ToSlide zoomLevel={156 / 1200} asThumb slide={slide} />
-							</SlideLink>
-						</Pane>
-					))}
-				</SortablePane>
+				<DragDropContext onDragEnd={onDragEnd}>
+					<Droppable droppableId="thumbnails">
+						{(provided, snapshot) => (
+							<div {...provided.droppableProps} ref={provided.innerRef}>
+								{props.slides.map((slide, index) => (
+									<Draggable
+										key={slide.uuid}
+										draggableId={slide.uuid}
+										index={index}>
+										{(provided, snapshot) => (
+											<SlideLink
+												key={slide.uuid}
+												ref={provided.innerRef}
+												{...provided.draggableProps}
+												{...provided.dragHandleProps}
+												style={provided.draggableProps.style}
+												slideIndex={index + 1}
+												onMouseDown={e => {
+													props.selectSlot("");
+													props.selectSlide(slide.uuid);
+													provided.dragHandleProps &&
+														provided.dragHandleProps.onMouseDown(e);
+												}}
+												isActive={
+													currentSlide && currentSlide.uuid === slide.uuid
+												}>
+												<ToSlide
+													zoomLevel={156 / 1200}
+													asThumb
+													slide={slide}
+												/>
+											</SlideLink>
+										)}
+									</Draggable>
+								))}
+								{provided.placeholder}
+							</div>
+						)}
+					</Droppable>
+				</DragDropContext>
 			</Navigator>
 			<EditorProvider
 				editorRef={editorRef}
@@ -209,7 +328,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 							</Section>
 							<Box>
 								<StyledSidebarSubtitle>Background</StyledSidebarSubtitle>
-								<ColorPicker
+								<Colorpicker
 									value={(currentSlide as Dekk.SlideModel).format.background}
 									propPath={`${currentSlide.uuid}.currentSlide.format.background`}
 									onChange={colorValue =>
@@ -222,7 +341,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 						</React.Fragment>
 					)}
 					{currentSlot ? (
-						currentSlot.type === StyledImage ? (
+						currentSlot.type === "StyledImage" ? (
 							<ImageSidebar />
 						) : (
 							<TextSidebar />
@@ -257,6 +376,7 @@ export const Frame = connect(
 	},
 	{
 		addSlide,
+		reorderSlides,
 		removeSlide,
 		assignSlot,
 		dischargeSlot,
@@ -269,6 +389,8 @@ export const Frame = connect(
 		setSlotProps,
 		setSlotValue,
 		setEditorState,
-		setSlideBackground
+		setSlideBackground,
+		replaceSlides,
+		replaceSlots
 	} as Dekk.FrameActions
 )(FrameImpl);
