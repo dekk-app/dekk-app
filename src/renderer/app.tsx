@@ -12,7 +12,7 @@ import Dekk from "../types";
 import {Router} from "react-router-static";
 import {Colorpicker} from "./colorpicker";
 
-const {systemPreferences} = remote;
+const {systemPreferences, nativeTheme} = remote;
 
 let element: HTMLElement;
 window.addEventListener("contextmenu", function(e: MouseEvent) {
@@ -96,12 +96,12 @@ const routes = {
 };
 
 const App = () => {
-	const [dark, setDark] = React.useState(systemPreferences.isDarkMode());
+	const [dark, setDark] = React.useState(nativeTheme.shouldUseDarkColors);
 	React.useEffect(() => {
 		const id = systemPreferences.subscribeNotification(
 			"AppleInterfaceThemeChangedNotification",
 			() => {
-				setDark(systemPreferences.isDarkMode());
+				setDark(nativeTheme.shouldUseDarkColors);
 			}
 		);
 		return () => {

@@ -201,7 +201,7 @@ app.on("ready", () => {
 	mainWindow = createMainWindow();
 	if (isDevelopment) {
 		const appName = "Dekk";
-		app.setName(appName);
+		app.name = appName;
 		const appData = app.getPath("appData");
 		app.setPath("userData", path.join(appData, appName));
 		app.dock.setIcon(path.join(process.cwd(), "build/icon.png"));
