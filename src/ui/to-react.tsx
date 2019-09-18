@@ -76,9 +76,9 @@ const buildThumb = (slot: Dekk.SlotModel) => {
 	const SlotComponent = SLOT_TYPES[slot.type];
 
 	return slot.type === "StyledImage" ? (
-		<SlotComponent {...slot.props} style={style} />
+		<SlotComponent {...slot.props} style={style} asThumb/>
 	) : (
-		<SlotComponent {...slot.props} style={style} dangerouslySetInnerHTML={{__html}} />
+		<SlotComponent {...slot.props} style={style} asThumb dangerouslySetInnerHTML={{__html}} />
 	);
 };
 

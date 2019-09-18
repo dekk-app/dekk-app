@@ -24,11 +24,12 @@ const slotMixinRaw = css<{verticalAlignment?: Dekk.VerticalAlignment}>`
 		`};
 `;
 
-const slotMixin = css`
+const slotMixin = css<{asThumb?: boolean}>`
 	${slotMixinRaw};
 	${props => css`
+		outline: ${props.asThumb ? "none" : `1px solid ${props.theme.palette.grey[300]}` };
 		&.selected {
-			outline: 1px solid ${props.theme.palette.grey[300]};
+			outline: 1px solid ${props.theme.palette.blue[300]};
 		}
 	`};
 `;

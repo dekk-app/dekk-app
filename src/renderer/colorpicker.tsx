@@ -1,9 +1,43 @@
 import React from "react";
 import {remote} from "electron";
-import {ColorpickerEvent, useBroadcast, useSubscribe} from "../ui/broadcast";
+import {ColorpickerEvent, ColorpickerPointer, useBroadcast, useSubscribe} from "../ui/broadcast";
 import {GlobalStyle} from "../ui/global-style";
 import Patterns from "../ui/patterns";
 import {ColorpickerPopover} from "../ui/colorpicker";
+import BrowserWindow = Electron.BrowserWindow;
+
+const setPosition = (win: BrowserWindow, node: HTMLElement, pointer: ColorpickerPointer) => {
+	const {clientX, clientY} = pointer;
+	const parent = win.getParentWindow();
+	const [parentX, parentY] = parent.getPosition();
+	const {size} = remote.screen.getPrimaryDisplay();
+	const {height: popoverHeight, width: popoverWidth} = node.getBoundingClientRect();
+	const popoverWindowWidth = popoverWidth + 2;
+	const popoverWindowHeight = popoverHeight + 2;
+	const {height: screenHeight, width: screenWidth} = size;
+	const margin = 10;
+	const arrowWidth = 24;
+	const maxE = screenWidth - popoverWindowWidth - margin;
+	const minW = margin;
+	const maxS = margin;
+	const maxN = screenHeight - popoverHeight - margin;
+	const maxArrow = popoverWindowWidth / 2 - margin - arrowWidth;
+	const spaceX = parentX + clientX - popoverWindowWidth / 2;
+	const spaceY = parentY + clientY;
+	const diffE = spaceX - maxE;
+	const diffW = spaceX - minW;
+	win.setContentSize(popoverWindowWidth, popoverWindowHeight);
+	win.setPosition(
+		Math.round(Math.max(minW, Math.min(maxE, spaceX))),
+		Math.round(Math.max(maxS, Math.min(maxN, spaceY)))
+	);
+	win.show();
+	return {
+		maxArrow,
+		diffE,
+		diffW
+	};
+};
 
 export const Colorpicker = () => {
 	const ref = React.useRef<HTMLDivElement>();
@@ -19,28 +53,7 @@ export const Colorpicker = () => {
 				if (ref.current && path && value && pointer) {
 					setPropsPath(path);
 					setSelectedColor(value);
-					const {clientX, clientY} = pointer;
-					const parent = colorpicker.getParentWindow();
-					const [parentX, parentY] = parent.getPosition();
-					const {size} = remote.screen.getPrimaryDisplay();
-					const {
-						height: popoverHeight,
-						width: popoverWidth
-					} = ref.current.getBoundingClientRect();
-					const popoverWindowWidth = popoverWidth + 2;
-					const popoverWindowHeight = popoverHeight + 2;
-					const {height: screenHeight, width: screenWidth} = size;
-					const margin = 10;
-					const arrowWidth = 24;
-					const maxE = screenWidth - popoverWindowWidth - margin;
-					const minW = margin;
-					const maxS = margin;
-					const maxN = screenHeight - popoverHeight - margin;
-					const maxArrow = popoverWindowWidth / 2 - margin - arrowWidth;
-					const spaceX = parentX + clientX - popoverWindowWidth / 2;
-					const spaceY = parentY + clientY;
-					const diffE = spaceX - maxE;
-					const diffW = spaceX - minW;
+					const {maxArrow, diffE, diffW} = setPosition(colorpicker, ref.current, pointer);
 					if (diffE > 0) {
 						setTipOffset(Math.min(maxArrow, diffE));
 					} else if (diffW < 0) {
@@ -48,12 +61,6 @@ export const Colorpicker = () => {
 					} else {
 						setTipOffset(0);
 					}
-					colorpicker.setContentSize(popoverWindowWidth, popoverWindowHeight);
-					colorpicker.setPosition(
-						Math.round(Math.max(minW, Math.min(maxE, spaceX))),
-						Math.round(Math.max(maxS, Math.min(maxN, spaceY)))
-					);
-					colorpicker.show();
 					setVisible(true);
 				}
 			}

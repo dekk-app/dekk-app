@@ -85,7 +85,7 @@ const TextDropdown: React.ForwardRefExoticComponent<{
 									: "empty"
 							}
 						/>
-						<SlotType>{type.label}</SlotType>
+						<SlotType asThumb>{type.label}</SlotType>
 					</StyledListButton>
 				</StyledListItem>
 			)})}
@@ -303,7 +303,7 @@ const TextSidebarImpl = (props: Dekk.SidebarProps) => {
 										setDropdown(isOpen => !isOpen);
 									}}>
 									{currentSlot && ((SlotType) =>
-										<SlotType>
+										<SlotType asThumb>
 											{
 												(
 													paragraphStyles.find(
