@@ -15,6 +15,11 @@ const MOVE_FIRST = "slides:MOVE_FIRST";
 const MOVE_FORWARD = "slides:MOVE_FORWARD";
 const MOVE_BACKWARD = "slides:MOVE_BACKWARD";
 
+const updateAndSave = ((state: Dekk.SlideModel[]) => {
+	electronStore.set("slides", state);
+	return state
+});
+
 const reducer: Reducer<
 	Dekk.SlideModel[],
 	{type: string; data: Partial<Dekk.SlideModel> & {slotId?: Dekk.UUID, from?: number, to?: number, slides: Dekk.SlideModel[]}}
@@ -25,89 +30,65 @@ const reducer: Reducer<
 	const slideIndex = state.findIndex(slide => slide.uuid === data.uuid);
 	const currentSlide = state[slideIndex];
 	const slotIndex = currentSlide && currentSlide.slots.findIndex(uuid => uuid === data.slotId);
-	let updatedStore = state;
 	switch (type) {
 		case ADD:
-			updatedStore = update(state, {$push: [data as Dekk.SlideModel]});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			return updateAndSave(update(state, {$push: [data as Dekk.SlideModel]}));;
 		case REPLACE:
-			updatedStore = data.slides;
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			return updateAndSave(data.slides);
 		case REORDER:
 			if (data.from === undefined && data.to === undefined) {
 				return state;
 			}
-			updatedStore = update(state, {$splice: [[data.from as number, 1], [data.to as number, 0, state[data.from as number]]]});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			return updateAndSave(update(state, {$splice: [[data.from as number, 1], [data.to as number, 0, state[data.from as number]]]}));
 		case ASSIGN:
-			updatedStore = update(state, {
+			return updateAndSave(update(state, {
 				[slideIndex]: {
 					slots: {$push: [data.slotId as Dekk.UUID]}
 				}
-			});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			}));
 		case DISCHARGE:
-			updatedStore = update(state, {
+			return updateAndSave(update(state, {
 				[slideIndex]: {
 					slots: {$splice: [[slotIndex, 1]]}
 				}
-			});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			}));
 		case MOVE_LAST:
-			updatedStore = update(state, {
+			return updateAndSave(update(state, {
 				[slideIndex]: {
 					slots: {$splice: [[slotIndex, 1]], $unshift: [data.slotId as Dekk.UUID]}
 				}
-			});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			}));
 		case MOVE_FORWARD:
-			updatedStore = update(state, {
+			return updateAndSave(update(state, {
 				[slideIndex]: {
 					slots: {$splice: [[slotIndex, 1], [slotIndex + 1, 0, data.slotId as Dekk.UUID]]}
 				}
-			});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			}));
 		case MOVE_BACKWARD:
-			updatedStore = update(state, {
+			return updateAndSave(update(state, {
 				[slideIndex]: {
 					slots: {$splice: [[slotIndex, 1], [slotIndex - 1, 0, data.slotId as Dekk.UUID]]}
 				}
-			});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			}));
 		case MOVE_FIRST:
-			updatedStore = update(state, {
+			return updateAndSave(update(state, {
 				[slideIndex]: {
 					slots: {$splice: [[slotIndex, 1]], $push: [data.slotId as Dekk.UUID]}
 				}
-			});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			}));
 		case SET_BACKGROUND:
-			updatedStore = update(state, {
+			return updateAndSave(update(state, {
 				[slideIndex]: {
 					format: {
 						$merge: data.format as Dekk.SlideFormat
 					}
 				}
-			});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			}));
 		case REMOVE:
-			updatedStore = update(state, {
+			return updateAndSave(update(state, {
 				$splice: [[slideIndex, 1]]
-			});
-			electronStore.set("slides", updatedStore);
-			return updatedStore;
+			}));
 		default:
-			electronStore.set("slides", state);
 			return state;
 	}
 };

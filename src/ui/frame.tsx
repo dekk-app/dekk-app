@@ -2,7 +2,7 @@ import React from "react";
 import {connect} from "react-redux";
 import {DragDropContext, Droppable, Draggable, DropResult} from "react-beautiful-dnd";
 import png_image from "./image.jpg";
-import {StyledImage, StyledText} from "../elements";
+// import {StyledImage, StyledText} from "../elements";
 import {select as selectSlide} from "../store/current-slide";
 import {select as selectSlot} from "../store/current-slot";
 import {
@@ -120,7 +120,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 	};
 	const addTextSlot = () => {
 		const slot = createSlot({
-			type: StyledText,
+			type: "StyledText",
 			...getSlotRect(24, 160)
 		});
 		props.addSlot(slot);
@@ -128,7 +128,7 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 	};
 	const addImageSlot = () => {
 		const slot = createSlot({
-			type: StyledImage,
+			type: "StyledImage",
 			props: {
 				src: png_image,
 				filename: "image.jpg"
@@ -237,6 +237,13 @@ const FrameImpl: React.FunctionComponent<Dekk.FrameProps> = ({children, ...props
 	const currentSlide: Dekk.SlideModel =
 		props.slides.find(slide => slide.uuid === props.currentSlide) || firstSlide;
 	const currentSlot = props.slots.find(slot => slot.uuid === props.currentSlot);
+	React.useEffect(() => {
+		if (currentSlide && currentSlide.uuid !== props.currentSlide) {
+			props.selectSlide(currentSlide.uuid)
+		} else {
+			props.selectSlide("")
+		}
+	}, []);
 	return (
 		<Layout sidebarLeft={true} sidebarRight={true}>
 			<GlobalStyle />

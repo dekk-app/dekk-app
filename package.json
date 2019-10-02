@@ -1,5 +1,5 @@
 {
-  "name": "dekk",
+  "name": "@dekk/osx",
   "version": "0.0.0",
   "description": "A presentation tool for amazing people",
   "homepage": "https://dekk.app",
@@ -49,6 +49,7 @@
     "react-beautiful-dnd": "11.0.5",
     "react-dom": "16.9.0",
     "react-hot-loader": "4.12.13",
+    "react-mops": "^0.1.1",
     "react-redux": "7.1.1",
     "react-router-static": "1.0.0",
     "redux": "4.0.4",
@@ -94,6 +95,7 @@
       "webpackConfig": "webpack.renderer.additions.js"
     },
     "whiteListedModules": [
+      "react-mops",
       "react-beautiful-dnd",
       "react-redux",
       "redux"

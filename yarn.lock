@@ -6544,6 +6544,14 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-mops@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/react-mops/-/react-mops-0.1.1.tgz#41c0df77cf08c037ed957c13afd80a4428eaa8ef"
+  integrity sha512-q4LB9fiXoJPb6SJDE501BgTdd+OIXVKkdmebMjGoPqMa4TQbWJQ9Mbn4cSLtV9dx2z6rfhq7gIopYL6W8mDv9g==
+  dependencies:
+    "@types/react" "16.9.2"
+    ts-lib "0.0.5"
+
 react-redux@7.1.1, react-redux@^7.0.3:
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-7.1.1.tgz#ce6eee1b734a7a76e0788b3309bf78ff6b34fa0a"
@@ -7745,6 +7753,11 @@ truncate-utf8-bytes@^1.0.0:
   integrity sha1-QFkjkJWS1W94pYGENLC3hInKXys=
   dependencies:
     utf8-byte-length "^1.0.1"
+
+ts-lib@0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/ts-lib/-/ts-lib-0.0.5.tgz#7f319885478de67f575a3b890a3f30fc6159352a"
+  integrity sha1-fzGYhUeN5n9XWjuJCj8w/GFZNSo=
 
 ts-loader@^6.0.0:
   version "6.1.0"
