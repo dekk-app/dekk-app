@@ -40,7 +40,7 @@
     "dotenv": "8.1.0",
     "draft-js": "0.11.0",
     "draft-js-export-html": "1.4.1",
-    "electron": "^7.0.0-beta.4",
+    "electron": "^7.2.4",
     "electron-context-menu": "0.15.0",
     "electron-store": "5.0.0",
     "electron-util": "0.12.1",
